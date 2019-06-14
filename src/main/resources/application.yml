@@ -1,0 +1,18 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: gitlab-release-server
+
+# 服务端口，将默认为5050.
+server:
+  port: 5050
+
+# 日志相关的简单配置.
+logging:
+  file: logs/gitlab-release-server.log
+  level:
+    root: info
+    org:
+      apache: warn
+      springframework: warn
