@@ -16,3 +16,10 @@ logging:
     org:
       apache: warn
       springframework: warn
+
+# Minio的配置，这是一个用于开发测试的 minio 地址.
+minio:
+  endpoint: http://172.25.16.76:9000
+  access-key: dev
+  secret-key: 123456789
+  bucket: releases
