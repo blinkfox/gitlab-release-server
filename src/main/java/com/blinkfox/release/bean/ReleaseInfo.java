@@ -1,5 +1,7 @@
 package com.blinkfox.release.bean;
 
+import com.blinkfox.release.kits.StringKit;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -40,22 +42,28 @@ public class ReleaseInfo {
     private String tagName;
 
     /**
-     * 本次发布的 Release 描述信息.
-     */
-    private String description;
-
-    /**
      * 如果 tagName 不存在，将从本 ref 来创建该版本，它可以是 commit SHA、另一个标签名或者分支名.
      */
     private String ref;
 
     /**
+     * 本次发布的 Release 描述信息.
+     */
+    private String description;
+
+    /**
+     * 本次发布的 release 的资源信息.
+     */
+    private AssetsInfo assets;
+
+    /**
      * 获取创建 release 的 URL 请求字符串.
+     * <p>URL 如：`http://localhost:3000/api/v4/projects/24/releases`.</p>
      *
      * @return URL 字符串
      */
     public String getCreateReleaseUrl() {
-        return null;
+        return StringKit.format("{}/api/v4/projects/{}/releases", this.gitlabUrl, this.projectId);
     }
 
 }

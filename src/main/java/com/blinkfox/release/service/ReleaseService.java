@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
+
 /**
  * 发布 Release 相关的 Service 服务类.
  *
@@ -28,28 +30,31 @@ public class ReleaseService {
      */
     private static final String TOKEN_KEY = "PRIVATE-TOKEN";
 
+    @Resource
+    private RestTemplate restTemplate;
+
     /**
      * 创建发布一个 Release 版本.
      *
      * @param releaseInfo Release 信息对象
      */
+    @SuppressWarnings("unchecked")
     public void createRelease(ReleaseInfo releaseInfo) {
-        String url = "";
-
         // 设置 headers.
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set(TOKEN_KEY, releaseInfo.getToken());
 
-        // 设置参数.
+        // 设置发布 release 的相关参数.
         Map<String, Object> params = new HashMap<>();
         params.put("name", releaseInfo.getName());
-        params.put("tagName", releaseInfo.getTagName());
+        params.put("tag_name", releaseInfo.getTagName());
         params.put("ref", releaseInfo.getRef());
         params.put("description", releaseInfo.getDescription());
+        params.put("assets", releaseInfo.getAssets());
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> request = restTemplate.postForEntity(url, new HttpEntity(params, headers), String.class);
+        ResponseEntity<String> request = restTemplate.postForEntity(releaseInfo.getCreateReleaseUrl(),
+                new HttpEntity(params, headers), String.class);
         log.info("获取得结果: \n{}", request.getBody());
     }
 
