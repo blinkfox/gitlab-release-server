@@ -1,5 +1,10 @@
 package com.blinkfox.release.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
 import com.blinkfox.release.bean.AssetsInfo;
 import com.blinkfox.release.bean.LinkInfo;
 import com.blinkfox.release.bean.ReleaseInfo;
@@ -12,8 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -84,23 +89,54 @@ public class ReleaseServiceTest {
     }
 
     /**
+     * 构造需要删除的 release 信息的实例.
+     *
+     * @return ReleaseInfo 实例
+     */
+    private ReleaseInfo buildDeleteReleaseInfo() {
+        return new ReleaseInfo()
+                .setGitlabUrl("https://gitlab.com")
+                .setToken(TOKEN)
+                .setProjectId("5725437")
+                .setTagName("v1.1.0");
+    }
+
+    /**
      * 真实测试发布一个新的 release，用于真实测试时使用.
      */
     @Test
     @Ignore
-    public void createRelease() {
-        // 真实的执行发布新的 release 版本.
+    public void realCreateRelease() {
         this.createRealReleaseService().createRelease(this.buildReleaseInfo());
+    }
+
+    /**
+     * 真实测试删除 release 版本，用于真实测试时使用.
+     */
+    @Test
+    @Ignore
+    public void realDeleteRelease() {
+        this.createRealReleaseService().deleteRelease(this.buildDeleteReleaseInfo());
     }
 
     /**
      * mock 测试发布一个新的 release.
      */
     @Test
-    public void createReleaseWithMock() {
-        Mockito.when(restTemplate.postForEntity(Mockito.anyString(), Mockito.any(), Mockito.any()))
+    public void createRelease() {
+        when(restTemplate.postForEntity(anyString(), any(), any()))
                 .thenReturn(ResponseEntity.ok("{\"name\":\"测试版本 v1.1.1\", \"tag_name\":\"v1.1.1\"}"));
         releaseService.createRelease(this.buildReleaseInfo());
+    }
+
+    /**
+     * mock 测试发布一个新的 release.
+     */
+    @Test
+    public void deleteRelease() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.DELETE), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok("{\"name\":\"测试版本 v1.1.2\", \"tag_name\":\"v1.1.2\"}"));
+        releaseService.deleteRelease(this.buildDeleteReleaseInfo());
     }
 
 }
