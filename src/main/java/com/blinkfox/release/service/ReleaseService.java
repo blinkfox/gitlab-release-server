@@ -36,6 +36,18 @@ public class ReleaseService {
     private RestTemplate restTemplate;
 
     /**
+     * 构建发送 http 请求需要的通用 HttpHeaders 对象实例，需要设置 token 信息.
+     *
+     * @param token Gitlab API 需要的 token 信息
+     * @return HttpHeaders 对象实例
+     */
+    private HttpHeaders buildHttpHeaders(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(TOKEN_KEY, token);
+        return headers;
+    }
+
+    /**
      * 创建发布一个 Release 版本.
      *
      * @param releaseInfo Release 信息对象
@@ -43,9 +55,8 @@ public class ReleaseService {
     @SuppressWarnings("unchecked")
     public void createRelease(ReleaseInfo releaseInfo) {
         // 设置 headers.
-        HttpHeaders headers = new HttpHeaders();
+        HttpHeaders headers = this.buildHttpHeaders(releaseInfo.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(TOKEN_KEY, releaseInfo.getToken());
 
         // 设置发布 release 的相关参数.
         Map<String, Object> params = new HashMap<>();
@@ -58,7 +69,24 @@ public class ReleaseService {
         // 执行发布新版 release 的请求.
         ResponseEntity<String> response = restTemplate.postForEntity(releaseInfo.getCreateReleaseUrl(),
                 new HttpEntity(params, headers), String.class);
-        log.info("【发布新的 release 成功】响应结果: \n{}", response.getBody());
+        log.info("【发布 release 成功】响应结果: \n{}", response.getBody());
+    }
+
+    /**
+     * 更新 Release 版本信息.
+     * <p>注：根据 tagName 只能更新 release 版本的发布名称(name)和描述信息(description).</p>
+     *
+     * @param releaseInfo Release 信息对象
+     */
+    public void updateRelease(ReleaseInfo releaseInfo) {
+        // 设置更新 release 版本信息的相关参数.
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", releaseInfo.getName());
+        params.put("description", releaseInfo.getDescription());
+
+        ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrlWithTag(), HttpMethod.PUT,
+                new HttpEntity<>(params, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
+        log.info("【更新 release 成功】响应结果: \n{}", response.getBody());
     }
 
     /**
@@ -67,13 +95,8 @@ public class ReleaseService {
      * @param releaseInfo release 信息对象
      */
     public void deleteRelease(ReleaseInfo releaseInfo) {
-        // 在 HttpHeaders 设置删除 release 所需要的 token.
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(TOKEN_KEY, releaseInfo.getToken());
-
-        // 执行删除 release 版本的请求.
-        ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getDeleteReleaseUrl(),
-                HttpMethod.DELETE, new HttpEntity<>(null, headers), String.class);
+        ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrlWithTag(), HttpMethod.DELETE,
+                new HttpEntity<>(null, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
         log.info("【删除 release 成功】响应结果: \n{}", response.getBody());
     }
 

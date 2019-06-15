@@ -30,6 +30,12 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(MockitoJUnitRunner.class)
 public class ReleaseServiceTest {
 
+    /** GitLab 的 URL 地址. */
+    private static final String GITLAB_URL = "https://gitlab.com";
+
+    /** GitLab 的项目 ID. */
+    private static final String PROJECT_ID = "5725437";
+
     /** 一个测试的 token. */
     private static final String TOKEN = "DETUw9jfL9E4mtUg8uBN";
 
@@ -78,14 +84,29 @@ public class ReleaseServiceTest {
      */
     private ReleaseInfo buildReleaseInfo() {
         return new ReleaseInfo()
-                .setGitlabUrl("https://gitlab.com")
+                .setGitlabUrl(GITLAB_URL)
                 .setToken(TOKEN)
-                .setProjectId("5725437")
-                .setName("测试版本 v1.1.0")
+                .setProjectId(PROJECT_ID)
+                .setName("测试发布新版本 v1.1.0")
                 .setTagName("v1.1.0")
                 .setRef("master")
                 .setDescription(CREATE_CHANGE_LOG)
                 .setAssets(new AssetsInfo(this.buildLinks()));
+    }
+
+    /**
+     * 构造需要更新的 release 信息的实例.
+     *
+     * @return ReleaseInfo 实例
+     */
+    private ReleaseInfo buildUpdateReleaseInfo() {
+        return new ReleaseInfo()
+                .setGitlabUrl(GITLAB_URL)
+                .setToken(TOKEN)
+                .setProjectId(PROJECT_ID)
+                .setTagName("v1.0.0")
+                .setName("测试更新版本 v1.0.0")
+                .setDescription("修改后的更新日志：\n\n> 这是修改后的更新日志。");
     }
 
     /**
@@ -95,9 +116,9 @@ public class ReleaseServiceTest {
      */
     private ReleaseInfo buildDeleteReleaseInfo() {
         return new ReleaseInfo()
-                .setGitlabUrl("https://gitlab.com")
+                .setGitlabUrl(GITLAB_URL)
                 .setToken(TOKEN)
-                .setProjectId("5725437")
+                .setProjectId(PROJECT_ID)
                 .setTagName("v1.1.0");
     }
 
@@ -108,6 +129,15 @@ public class ReleaseServiceTest {
     @Ignore
     public void realCreateRelease() {
         this.createRealReleaseService().createRelease(this.buildReleaseInfo());
+    }
+
+    /**
+     * 真实测试更新 release 版本信息的功能，用于真实测试时使用.
+     */
+    @Test
+    @Ignore
+    public void realUpdateRelease() {
+        this.createRealReleaseService().updateRelease(this.buildUpdateReleaseInfo());
     }
 
     /**
@@ -127,6 +157,16 @@ public class ReleaseServiceTest {
         when(restTemplate.postForEntity(anyString(), any(), any()))
                 .thenReturn(ResponseEntity.ok("{\"name\":\"测试版本 v1.1.1\", \"tag_name\":\"v1.1.1\"}"));
         releaseService.createRelease(this.buildReleaseInfo());
+    }
+
+    /**
+     * mock 测试更新已有的 release 版本信息.
+     */
+    @Test
+    public void updateRelease() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok("{\"name\":\"测试版本 v1.0.0\", \"tag_name\":\"v1.0.0\"}"));
+        releaseService.updateRelease(this.buildUpdateReleaseInfo());
     }
 
     /**
