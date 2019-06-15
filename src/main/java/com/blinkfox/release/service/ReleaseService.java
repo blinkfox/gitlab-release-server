@@ -4,17 +4,18 @@ import com.blinkfox.release.bean.ReleaseInfo;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Resource;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.Resource;
 
 /**
  * 发布 Release 相关的 Service 服务类.
@@ -30,6 +31,7 @@ public class ReleaseService {
      */
     private static final String TOKEN_KEY = "PRIVATE-TOKEN";
 
+    @Setter
     @Resource
     private RestTemplate restTemplate;
 
@@ -53,9 +55,26 @@ public class ReleaseService {
         params.put("description", releaseInfo.getDescription());
         params.put("assets", releaseInfo.getAssets());
 
-        ResponseEntity<String> request = restTemplate.postForEntity(releaseInfo.getCreateReleaseUrl(),
+        // 执行发布新版 release 的请求.
+        ResponseEntity<String> response = restTemplate.postForEntity(releaseInfo.getCreateReleaseUrl(),
                 new HttpEntity(params, headers), String.class);
-        log.info("获取得结果: \n{}", request.getBody());
+        log.info("【发布新的 release 成功】响应结果: \n{}", response.getBody());
+    }
+
+    /**
+     * 根据 release 信息中的 tagName 删除一个 release 版本.
+     *
+     * @param releaseInfo release 信息对象
+     */
+    public void deleteRelease(ReleaseInfo releaseInfo) {
+        // 在 HttpHeaders 设置删除 release 所需要的 token.
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(TOKEN_KEY, releaseInfo.getToken());
+
+        // 执行删除 release 版本的请求.
+        ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getDeleteReleaseUrl(),
+                HttpMethod.DELETE, new HttpEntity<>(null, headers), String.class);
+        log.info("【删除 release 成功】响应结果: \n{}", response.getBody());
     }
 
 }

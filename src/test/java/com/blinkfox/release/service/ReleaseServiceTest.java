@@ -9,13 +9,20 @@ import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * ReleaseService 的单元测试类.
  *
  * @author blinkfox on 2019-06-15.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ReleaseServiceTest {
 
     /** 一个测试的 token. */
@@ -32,6 +39,20 @@ public class ReleaseServiceTest {
 
     @InjectMocks
     private ReleaseService releaseService;
+
+    @Mock
+    private RestTemplate restTemplate;
+
+    /**
+     * 创建一个 ReleaseService 的真实对象.
+     *
+     * @return ReleaseService 实例
+     */
+    private ReleaseService createRealReleaseService() {
+        ReleaseService realReleaseService = new ReleaseService();
+        realReleaseService.setRestTemplate(new RestTemplate());
+        return realReleaseService;
+    }
 
     /**
      * 构造资源链接信息.
@@ -69,17 +90,17 @@ public class ReleaseServiceTest {
     @Ignore
     public void createRelease() {
         // 真实的执行发布新的 release 版本.
-        new ReleaseService().createRelease(buildReleaseInfo());
+        this.createRealReleaseService().createRelease(this.buildReleaseInfo());
     }
 
     /**
      * mock 测试发布一个新的 release.
      */
     @Test
-    @Ignore
     public void createReleaseWithMock() {
-        // 真实的执行发布新的 release 版本.
-        releaseService.createRelease(buildReleaseInfo());
+        Mockito.when(restTemplate.postForEntity(Mockito.anyString(), Mockito.any(), Mockito.any()))
+                .thenReturn(ResponseEntity.ok("{\"name\":\"测试版本 v1.1.1\", \"tag_name\":\"v1.1.1\"}"));
+        releaseService.createRelease(this.buildReleaseInfo());
     }
 
 }
