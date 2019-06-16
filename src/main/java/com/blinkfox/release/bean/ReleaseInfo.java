@@ -57,17 +57,17 @@ public class ReleaseInfo {
     private AssetsInfo assets;
 
     /**
-     * 拼接创建 release 的 URL 请求字符串.
+     * 拼接 release 的 URL 请求字符串，不含标签.
      * <p>URL 如：`http://localhost:3000/api/v4/projects/24/releases`.</p>
      *
      * @return URL 字符串
      */
-    public String getCreateReleaseUrl() {
+    public String getReleaseUrl() {
         return StringKit.format("{}/api/v4/projects/{}/releases", this.gitlabUrl, this.projectId);
     }
 
     /**
-     * 拼接含 tagName 的 release URL 请求字符串.
+     * 拼接含 tagName 的 release URL 请求字符串，含标签.
      * <p>URL 如：`http://localhost:3000/api/v4/projects/24/releases/v0.1`.</p>
      *
      * @return URL 字符串

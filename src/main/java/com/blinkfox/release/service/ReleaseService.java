@@ -48,6 +48,34 @@ public class ReleaseService {
     }
 
     /**
+     * 根据项目 Release 信息获取该项目所有的 Release 信息.
+     *
+     * @param releaseInfo 项目 Release 信息
+     * @return 所有Release 信息
+     */
+    public String getAllReleases(ReleaseInfo releaseInfo) {
+        ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrl(), HttpMethod.GET,
+                new HttpEntity<>(null, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
+        String resultJson = response.getBody();
+        log.info("【获取所有 release 成功】响应结果: \n{}", resultJson);
+        return resultJson;
+    }
+
+    /**
+     * 根据项目和标签名称得到该标签对应的 Release 版本信息.
+     *
+     * @param releaseInfo 项目 Release 信息
+     * @return 本标签名称对应的Release 信息
+     */
+    public String getReleaseByTagName(ReleaseInfo releaseInfo) {
+        ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrlWithTag(), HttpMethod.GET,
+                new HttpEntity<>(null, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
+        String resultJson = response.getBody();
+        log.info("【获取单个 release 成功】响应结果: \n{}", resultJson);
+        return resultJson;
+    }
+
+    /**
      * 创建发布一个 Release 版本.
      *
      * @param releaseInfo Release 信息对象
@@ -67,7 +95,7 @@ public class ReleaseService {
         params.put("assets", releaseInfo.getAssets());
 
         // 执行发布新版 release 的请求.
-        ResponseEntity<String> response = restTemplate.postForEntity(releaseInfo.getCreateReleaseUrl(),
+        ResponseEntity<String> response = restTemplate.postForEntity(releaseInfo.getReleaseUrl(),
                 new HttpEntity(params, headers), String.class);
         log.info("【发布 release 成功】响应结果: \n{}", response.getBody());
     }

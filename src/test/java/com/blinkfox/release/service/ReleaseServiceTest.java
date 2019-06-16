@@ -12,6 +12,7 @@ import com.blinkfox.release.bean.ReleaseInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,15 +79,21 @@ public class ReleaseServiceTest {
     }
 
     /**
+     * 构建基础的 Release 信息.
+     *
+     * @return Release 信息
+     */
+    private ReleaseInfo buildBaseReleaseInfo() {
+        return new ReleaseInfo().setGitlabUrl(GITLAB_URL).setToken(TOKEN).setProjectId(PROJECT_ID);
+    }
+
+    /**
      * 构造发布 release 版本的相关参数.
      *
      * @return ReleaseInfo 实例
      */
     private ReleaseInfo buildReleaseInfo() {
-        return new ReleaseInfo()
-                .setGitlabUrl(GITLAB_URL)
-                .setToken(TOKEN)
-                .setProjectId(PROJECT_ID)
+        return this.buildBaseReleaseInfo()
                 .setName("测试发布新版本 v1.1.0")
                 .setTagName("v1.1.0")
                 .setRef("master")
@@ -100,10 +107,7 @@ public class ReleaseServiceTest {
      * @return ReleaseInfo 实例
      */
     private ReleaseInfo buildUpdateReleaseInfo() {
-        return new ReleaseInfo()
-                .setGitlabUrl(GITLAB_URL)
-                .setToken(TOKEN)
-                .setProjectId(PROJECT_ID)
+        return this.buildBaseReleaseInfo()
                 .setTagName("v1.0.0")
                 .setName("测试更新版本 v1.0.0")
                 .setDescription("修改后的更新日志：\n\n> 这是修改后的更新日志。");
@@ -114,12 +118,27 @@ public class ReleaseServiceTest {
      *
      * @return ReleaseInfo 实例
      */
-    private ReleaseInfo buildDeleteReleaseInfo() {
-        return new ReleaseInfo()
-                .setGitlabUrl(GITLAB_URL)
-                .setToken(TOKEN)
-                .setProjectId(PROJECT_ID)
-                .setTagName("v1.1.0");
+    private ReleaseInfo buildReleaseInfoWithTagName() {
+        return this.buildBaseReleaseInfo().setTagName("v1.0.1");
+    }
+
+    /**
+     * 真实测试获取所有的 release，用于真实测试时使用.
+     */
+    @Test
+    @Ignore
+    public void realGetAllReleases() {
+        Assert.assertNotNull(this.createRealReleaseService().getAllReleases(this.buildBaseReleaseInfo()));
+    }
+
+    /**
+     * 真实测试获取单个 release 版本信息，用于真实测试时使用.
+     */
+    @Test
+    @Ignore
+    public void realGetReleaseByTagName() {
+        Assert.assertNotNull(this.createRealReleaseService()
+                .getReleaseByTagName(this.buildReleaseInfoWithTagName()));
     }
 
     /**
@@ -146,7 +165,27 @@ public class ReleaseServiceTest {
     @Test
     @Ignore
     public void realDeleteRelease() {
-        this.createRealReleaseService().deleteRelease(this.buildDeleteReleaseInfo());
+        this.createRealReleaseService().deleteRelease(this.buildReleaseInfoWithTagName());
+    }
+
+    /**
+     * mock 测试发布一个新的 release.
+     */
+    @Test
+    public void getAllReleases() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok("[{\"name\":\"测试版本 v1.1.3\", \"tag_name\":\"v1.1.3\"}]"));
+        releaseService.getAllReleases(this.buildBaseReleaseInfo());
+    }
+
+    /**
+     * mock 测试发布一个新的 release.
+     */
+    @Test
+    public void getReleaseByTagName() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok("{\"name\":\"测试版本 v1.0.2\", \"tag_name\":\"v1.0.2\"}"));
+        releaseService.getReleaseByTagName(this.buildReleaseInfoWithTagName());
     }
 
     /**
@@ -176,7 +215,7 @@ public class ReleaseServiceTest {
     public void deleteRelease() {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.DELETE), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok("{\"name\":\"测试版本 v1.1.2\", \"tag_name\":\"v1.1.2\"}"));
-        releaseService.deleteRelease(this.buildDeleteReleaseInfo());
+        releaseService.deleteRelease(this.buildReleaseInfoWithTagName());
     }
 
 }
