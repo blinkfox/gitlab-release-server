@@ -29,16 +29,7 @@ import org.springframework.web.client.RestTemplate;
  * @author blinkfox on 2019-06-15.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ReleaseServiceTest {
-
-    /** GitLab 的 URL 地址. */
-    private static final String GITLAB_URL = "https://gitlab.com";
-
-    /** GitLab 的项目 ID. */
-    private static final String PROJECT_ID = "5725437";
-
-    /** 一个测试的 token. */
-    private static final String TOKEN = "DETUw9jfL9E4mtUg8uBN";
+public class ReleaseServiceTest extends GitlabServiceTest {
 
     /** 更新日志. */
     private static final String CREATE_CHANGE_LOG = "更新日志：\n"
@@ -85,10 +76,19 @@ public class ReleaseServiceTest {
      */
     private ReleaseInfo buildBaseReleaseInfo() {
         ReleaseInfo releaseInfo = new ReleaseInfo();
-        releaseInfo.setGitlabUrl(GITLAB_URL);
-        releaseInfo.setToken(TOKEN);
-        releaseInfo.setProjectId(PROJECT_ID);
+        releaseInfo.setGitlabUrl(super.gitlabUrl);
+        releaseInfo.setToken(super.token);
+        releaseInfo.setProjectId(super.projectId);
         return releaseInfo;
+    }
+
+    /**
+     * 构造需要删除的 release 信息的实例.
+     *
+     * @return ReleaseInfo 实例
+     */
+    private ReleaseInfo buildReleaseInfoWithTagName() {
+        return this.buildBaseReleaseInfo().setTagName("v1.0.1");
     }
 
     /**
@@ -115,15 +115,6 @@ public class ReleaseServiceTest {
                 .setTagName("v1.0.0")
                 .setName("测试更新版本 v1.0.0")
                 .setDescription("修改后的更新日志：\n\n> 这是修改后的更新日志。");
-    }
-
-    /**
-     * 构造需要删除的 release 信息的实例.
-     *
-     * @return ReleaseInfo 实例
-     */
-    private ReleaseInfo buildReleaseInfoWithTagName() {
-        return this.buildBaseReleaseInfo().setTagName("v1.0.1");
     }
 
     /**
