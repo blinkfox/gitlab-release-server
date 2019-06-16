@@ -83,7 +83,7 @@ public class ReleaseServiceTest extends GitlabServiceTest {
     }
 
     /**
-     * 构造需要删除的 release 信息的实例.
+     * 构造含 tagName 的 release 信息的实例.
      *
      * @return ReleaseInfo 实例
      */

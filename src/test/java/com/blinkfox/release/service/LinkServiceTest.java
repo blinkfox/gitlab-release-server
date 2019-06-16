@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.blinkfox.release.bean.release.BaseLinkInfo;
 import com.blinkfox.release.bean.release.LinkInfo;
 
 import org.junit.Assert;
@@ -67,6 +68,15 @@ public class LinkServiceTest extends GitlabServiceTest {
     }
 
     /**
+     * 构造需要新增的 link 信息的实例.
+     *
+     * @return LinkInfo 实例
+     */
+    private LinkInfo buildCreateLinkInfo() {
+        return this.buildBaseLinkInfo().setBaseLinkInfo(new BaseLinkInfo("QQ地址", "https://qq.com"));
+    }
+
+    /**
      * 真实测试获取所有资源链接的 link 信息，用于真实测试时使用.
      */
     @Test
@@ -82,6 +92,15 @@ public class LinkServiceTest extends GitlabServiceTest {
     @Ignore
     public void realGetLinkById() {
         Assert.assertNotNull(this.createRealLinkService().getLinkById(this.buildLinkInfoWithId()));
+    }
+
+    /**
+     * 真实创建资源链接的 link 信息，用于真实测试时使用.
+     */
+    @Test
+    @Ignore
+    public void realCreateLink() {
+        this.createRealLinkService().createLink(this.buildCreateLinkInfo());
     }
 
     /**
@@ -102,6 +121,16 @@ public class LinkServiceTest extends GitlabServiceTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(""));
         linkService.getLinkById(this.buildLinkInfoWithId());
+    }
+
+    /**
+     * mock 测试创建一个链接 link 信息.
+     */
+    @Test
+    public void createLink() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok(""));
+        linkService.createLink(this.buildCreateLinkInfo());
     }
 
 }

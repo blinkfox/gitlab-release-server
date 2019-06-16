@@ -27,14 +27,9 @@ public class LinkInfo extends ProjectInfo {
     private String linkId;
 
     /**
-     * 链接名称.
+     * 基础链接信息，主要包括名称和URL.
      */
-    private String name;
-
-    /**
-     * 链接的 URL.
-     */
-    private String url;
+    private BaseLinkInfo baseLinkInfo;
 
     /**
      * 获取拼接的资源链接 link 的 URL 请求字符串，不含链接ID（linkId）.
