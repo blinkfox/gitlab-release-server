@@ -1,6 +1,7 @@
 package com.blinkfox.release.service;
 
 import com.blinkfox.release.bean.ReleaseInfo;
+import com.blinkfox.release.kits.HttpKit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * 发布 Release 相关的 Service 服务类.
+ * 操作 Release 相关的 Service 服务类.
  *
  * @author blinkfox on 2019-06-15.
  */
@@ -26,26 +27,9 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class ReleaseService {
 
-    /**
-     * 发送给 GitLab 的 token 的关键参数名常量.
-     */
-    private static final String TOKEN_KEY = "PRIVATE-TOKEN";
-
     @Setter
     @Resource
     private RestTemplate restTemplate;
-
-    /**
-     * 构建发送 http 请求需要的通用 HttpHeaders 对象实例，需要设置 token 信息.
-     *
-     * @param token Gitlab API 需要的 token 信息
-     * @return HttpHeaders 对象实例
-     */
-    private HttpHeaders buildHttpHeaders(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(TOKEN_KEY, token);
-        return headers;
-    }
 
     /**
      * 根据项目 Release 信息获取该项目所有的 Release 信息.
@@ -55,7 +39,7 @@ public class ReleaseService {
      */
     public String getAllReleases(ReleaseInfo releaseInfo) {
         ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrl(), HttpMethod.GET,
-                new HttpEntity<>(null, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
+                new HttpEntity<>(null, HttpKit.buildTokenHeaders(releaseInfo.getToken())), String.class);
         String resultJson = response.getBody();
         log.info("【获取所有 release 成功】响应结果: \n{}", resultJson);
         return resultJson;
@@ -69,7 +53,7 @@ public class ReleaseService {
      */
     public String getReleaseByTagName(ReleaseInfo releaseInfo) {
         ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrlWithTag(), HttpMethod.GET,
-                new HttpEntity<>(null, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
+                new HttpEntity<>(null, HttpKit.buildTokenHeaders(releaseInfo.getToken())), String.class);
         String resultJson = response.getBody();
         log.info("【获取单个 release 成功】响应结果: \n{}", resultJson);
         return resultJson;
@@ -83,7 +67,7 @@ public class ReleaseService {
     @SuppressWarnings("unchecked")
     public void createRelease(ReleaseInfo releaseInfo) {
         // 设置 headers.
-        HttpHeaders headers = this.buildHttpHeaders(releaseInfo.getToken());
+        HttpHeaders headers = HttpKit.buildTokenHeaders(releaseInfo.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 设置发布 release 的相关参数.
@@ -113,7 +97,7 @@ public class ReleaseService {
         params.put("description", releaseInfo.getDescription());
 
         ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrlWithTag(), HttpMethod.PUT,
-                new HttpEntity<>(params, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
+                new HttpEntity<>(params, HttpKit.buildTokenHeaders(releaseInfo.getToken())), String.class);
         log.info("【更新 release 成功】响应结果: \n{}", response.getBody());
     }
 
@@ -124,7 +108,7 @@ public class ReleaseService {
      */
     public void deleteRelease(ReleaseInfo releaseInfo) {
         ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrlWithTag(), HttpMethod.DELETE,
-                new HttpEntity<>(null, this.buildHttpHeaders(releaseInfo.getToken())), String.class);
+                new HttpEntity<>(null, HttpKit.buildTokenHeaders(releaseInfo.getToken())), String.class);
         log.info("【删除 release 成功】响应结果: \n{}", response.getBody());
     }
 
