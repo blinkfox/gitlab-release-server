@@ -80,13 +80,22 @@ public class LinkServiceTest extends GitlabServiceTest {
     }
 
     /**
-     * 构造需要新增的 link 信息的实例.
+     * 构造需要修改的 link 信息的实例.
      *
      * @return LinkInfo 实例
      */
     private LinkInfo buildUpdateLinkInfo() {
         return this.buildBaseLinkInfo().setLinkId(LINK_ID)
                 .setBaseLinkInfo(new BaseLinkInfo("网易首页", "https://www.163.com/"));
+    }
+
+    /**
+     * 构造需要删除的 link 信息的实例.
+     *
+     * @return LinkInfo 实例
+     */
+    private LinkInfo buildDeleteLinkInfo() {
+        return this.buildBaseLinkInfo().setLinkId("5274");
     }
 
     /**
@@ -123,6 +132,15 @@ public class LinkServiceTest extends GitlabServiceTest {
     @Ignore
     public void realUpdateLink() {
         this.createRealLinkService().updateLink(this.buildUpdateLinkInfo());
+    }
+
+    /**
+     * 真实删除资源链接的 link 信息，用于真实测试时使用.
+     */
+    @Test
+    @Ignore
+    public void realDeleteLink() {
+        this.createRealLinkService().deleteLink(this.buildDeleteLinkInfo());
     }
 
     /**
@@ -163,6 +181,16 @@ public class LinkServiceTest extends GitlabServiceTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(""));
         linkService.updateLink(this.buildUpdateLinkInfo());
+    }
+
+    /**
+     * mock 测试删除一个链接 link 信息.
+     */
+    @Test
+    public void deleteLink() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.DELETE), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok(""));
+        linkService.deleteLink(this.buildDeleteLinkInfo());
     }
 
 }
