@@ -1,4 +1,4 @@
-package com.blinkfox.release.bean;
+package com.blinkfox.release.bean.release;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class LinkInfo {
+public class BaseLinkInfo {
 
     /**
      * 链接名称.

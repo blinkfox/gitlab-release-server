@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.blinkfox.release.bean.AssetsInfo;
-import com.blinkfox.release.bean.LinkInfo;
-import com.blinkfox.release.bean.ReleaseInfo;
+import com.blinkfox.release.bean.release.AssetsInfo;
+import com.blinkfox.release.bean.release.BaseLinkInfo;
+import com.blinkfox.release.bean.release.ReleaseInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,10 +71,10 @@ public class ReleaseServiceTest {
      *
      * @return 链接信息集合
      */
-    private List<LinkInfo> buildLinks() {
-        List<LinkInfo> links = new ArrayList<>(2);
-        links.add(new LinkInfo("my-ssdemo.zip", "https://gitlab.com/blinkfox/ssdemo"));
-        links.add(new LinkInfo("my-ssdemo.tar.gz", "https://baidu.com"));
+    private List<BaseLinkInfo> buildLinks() {
+        List<BaseLinkInfo> links = new ArrayList<>(2);
+        links.add(new BaseLinkInfo("my-ssdemo.zip", "https://gitlab.com/blinkfox/ssdemo"));
+        links.add(new BaseLinkInfo("my-ssdemo.tar.gz", "https://baidu.com"));
         return links;
     }
 
@@ -84,7 +84,11 @@ public class ReleaseServiceTest {
      * @return Release 信息
      */
     private ReleaseInfo buildBaseReleaseInfo() {
-        return new ReleaseInfo().setGitlabUrl(GITLAB_URL).setToken(TOKEN).setProjectId(PROJECT_ID);
+        ReleaseInfo releaseInfo = new ReleaseInfo();
+        releaseInfo.setGitlabUrl(GITLAB_URL);
+        releaseInfo.setToken(TOKEN);
+        releaseInfo.setProjectId(PROJECT_ID);
+        return releaseInfo;
     }
 
     /**

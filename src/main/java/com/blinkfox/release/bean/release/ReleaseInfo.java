@@ -1,4 +1,4 @@
-package com.blinkfox.release.bean;
+package com.blinkfox.release.bean.release;
 
 import com.blinkfox.release.kits.StringKit;
 
@@ -7,29 +7,14 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * ReleaseInfo.
+ * Release 版本信息.
  *
  * @author blinkfox on 2019-06-15.
  */
 @Setter
 @Getter
 @Accessors(chain = true)
-public class ReleaseInfo {
-
-    /**
-     * GitLab 的主 URL 地址.
-     */
-    private String gitlabUrl;
-
-    /**
-     * 发送给 GitLab 需要的 token 值.
-     */
-    private String token;
-
-    /**
-     * GitLab 的项目 ID.
-     */
-    private String projectId;
+public class ReleaseInfo extends ProjectInfo {
 
     /**
      * 本次发布的 Release 标题名称.
@@ -63,7 +48,7 @@ public class ReleaseInfo {
      * @return URL 字符串
      */
     public String getReleaseUrl() {
-        return StringKit.format("{}/api/v4/projects/{}/releases", this.gitlabUrl, this.projectId);
+        return StringKit.format("{}/api/v4/projects/{}/releases", super.gitlabUrl, super.projectId);
     }
 
     /**
@@ -73,7 +58,7 @@ public class ReleaseInfo {
      * @return URL 字符串
      */
     public String getReleaseUrlWithTag() {
-        return StringKit.format("{}/api/v4/projects/{}/releases/{}", this.gitlabUrl, this.projectId, this.tagName);
+        return StringKit.format("{}/api/v4/projects/{}/releases/{}", super.gitlabUrl, super.projectId, this.tagName);
     }
 
 }
