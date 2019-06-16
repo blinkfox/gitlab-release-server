@@ -58,20 +58,51 @@ public class LinkService {
     }
 
     /**
+     * 创建新增或更新 Link 信息需要的参数 Map.
+     *
+     * @param linkInfo 链接信息
+     * @return map
+     */
+    private Map<String, Object> createLinkParamsMap(LinkInfo linkInfo) {
+        Map<String, Object> params = new HashMap<>(4);
+        params.put("name", linkInfo.getBaseLinkInfo().getName());
+        params.put("url", linkInfo.getBaseLinkInfo().getUrl());
+        return params;
+    }
+
+    /**
      * 创建发布一个新的资源链接 link 信息.
      *
      * @param linkInfo 链接信息
      */
     public void createLink(LinkInfo linkInfo) {
-        // 设置创建 link 的相关参数.
-        Map<String, Object> params = new HashMap<>();
-        params.put("name", linkInfo.getBaseLinkInfo().getName());
-        params.put("url", linkInfo.getBaseLinkInfo().getUrl());
-
-        // 执行创建新的 link 的请求.
         ResponseEntity<String> response = restTemplate.exchange(linkInfo.getLinkUrl(), HttpMethod.POST,
-                new HttpEntity<>(params, HttpKit.buildTokenHeaders(linkInfo.getToken())), String.class);
+                new HttpEntity<>(this.createLinkParamsMap(linkInfo), HttpKit.buildTokenHeaders(linkInfo.getToken())),
+                String.class);
         log.info("【创建 link 成功】响应结果: \n{}", response.getBody());
+    }
+
+    /**
+     * 更新一个已有的资源链接 link 信息.
+     *
+     * @param linkInfo 链接信息
+     */
+    public void updateLink(LinkInfo linkInfo) {
+        ResponseEntity<String> response = restTemplate.exchange(linkInfo.getLinkUrlWithId(), HttpMethod.PUT,
+                new HttpEntity<>(this.createLinkParamsMap(linkInfo), HttpKit.buildTokenHeaders(linkInfo.getToken())),
+                String.class);
+        log.info("【更新 link 成功】响应结果: \n{}", response.getBody());
+    }
+
+    /**
+     * 删除一个已有的资源链接 link 信息.
+     *
+     * @param linkInfo 链接信息
+     */
+    public void deleteLink(LinkInfo linkInfo) {
+        ResponseEntity<String> response = restTemplate.exchange(linkInfo.getLinkUrlWithId(), HttpMethod.DELETE,
+                new HttpEntity<>(null, HttpKit.buildTokenHeaders(linkInfo.getToken())), String.class);
+        log.info("【删除 link 成功】响应结果: \n{}", response.getBody());
     }
 
 }

@@ -27,6 +27,9 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(MockitoJUnitRunner.class)
 public class LinkServiceTest extends GitlabServiceTest {
 
+    /** 链接ID. */
+    private static final String LINK_ID = "5197";
+
     @InjectMocks
     private LinkService linkService;
 
@@ -64,7 +67,7 @@ public class LinkServiceTest extends GitlabServiceTest {
      * @return LinkInfo 实例
      */
     private LinkInfo buildLinkInfoWithId() {
-        return this.buildBaseLinkInfo().setLinkId("5197");
+        return this.buildBaseLinkInfo().setLinkId(LINK_ID);
     }
 
     /**
@@ -73,7 +76,17 @@ public class LinkServiceTest extends GitlabServiceTest {
      * @return LinkInfo 实例
      */
     private LinkInfo buildCreateLinkInfo() {
-        return this.buildBaseLinkInfo().setBaseLinkInfo(new BaseLinkInfo("QQ地址", "https://qq.com"));
+        return this.buildBaseLinkInfo().setBaseLinkInfo(new BaseLinkInfo("QQ地址", "https://www.qq.com/"));
+    }
+
+    /**
+     * 构造需要新增的 link 信息的实例.
+     *
+     * @return LinkInfo 实例
+     */
+    private LinkInfo buildUpdateLinkInfo() {
+        return this.buildBaseLinkInfo().setLinkId(LINK_ID)
+                .setBaseLinkInfo(new BaseLinkInfo("网易首页", "https://www.163.com/"));
     }
 
     /**
@@ -104,6 +117,15 @@ public class LinkServiceTest extends GitlabServiceTest {
     }
 
     /**
+     * 真实创建资源链接的 link 信息，用于真实测试时使用.
+     */
+    @Test
+    @Ignore
+    public void realUpdateLink() {
+        this.createRealLinkService().updateLink(this.buildUpdateLinkInfo());
+    }
+
+    /**
      * mock 测试发布一个新的 release.
      */
     @Test
@@ -131,6 +153,16 @@ public class LinkServiceTest extends GitlabServiceTest {
         when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(""));
         linkService.createLink(this.buildCreateLinkInfo());
+    }
+
+    /**
+     * mock 测试更新一个链接 link 信息.
+     */
+    @Test
+    public void updateLink() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok(""));
+        linkService.updateLink(this.buildUpdateLinkInfo());
     }
 
 }

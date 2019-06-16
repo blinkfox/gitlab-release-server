@@ -71,7 +71,7 @@ public class ReleaseService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 设置发布 release 的相关参数.
-        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>(8);
         params.put("name", releaseInfo.getName());
         params.put("tag_name", releaseInfo.getTagName());
         params.put("ref", releaseInfo.getRef());
@@ -92,7 +92,7 @@ public class ReleaseService {
      */
     public void updateRelease(ReleaseInfo releaseInfo) {
         // 设置更新 release 版本信息的相关参数.
-        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>(4);
         params.put("name", releaseInfo.getName());
         params.put("description", releaseInfo.getDescription());
 
