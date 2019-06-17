@@ -8,10 +8,6 @@
     <link rel="stylesheet" href="../lib/zui/css/zui.min.css" />
     <link rel="stylesheet" href="../lib/zui/lib/uploader/zui.uploader.min.css" />
     <link rel="stylesheet" href="../lib/zui/css/doc.min.css" />
-    <!--<link rel="stylesheet" href="../lib/tui/tui-editor.css" />-->
-    <!--<link rel="stylesheet" href="../lib/tui/tui-editor-contents.css" />-->
-    <!--<link rel="stylesheet" href="../lib/tui/codemirror.css" />-->
-    <!--<link rel="stylesheet" href="../lib/tui/github.min.css" />-->
     <link rel="stylesheet" href="../css/index.css" />
 </head>
 
@@ -93,18 +89,50 @@
             <div class="form-group">
                 <label for="assetsUploader" class="col-sm-2">上传资源</label>
                 <div class="col-sm-10">
-                    <div id='assetsUploader' class="uploader">
+                    <div id="assetsUploader" class="uploader">
                         <div class="uploader-message text-center">
                             <div class="content"></div>
                             <button type="button" class="close">×</button>
                         </div>
-                        <div class="uploader-files file-list file-list-grid"></div>
-                        <div>
-                            <hr class="divider">
-                            <div class="uploader-status pull-right text-muted"></div>
-                            <button type="button" class="btn btn-link uploader-btn-browse"><i class="icon icon-plus"></i> 选择文件</button>
-                            <button type="button" class="btn btn-link uploader-btn-start"><i class="icon icon-cloud-upload"></i> 开始上传</button>
-                        </div>
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th colspan="2">文件名</th>
+                                <th style="width: 100px">大小</th>
+                                <th style="width: 160px; text-align: center;">状态/操作</th>
+                            </tr>
+                            </thead>
+                            <tbody class="uploader-files">
+                            <tr class="file template">
+                                <td style="width: 38px; padding: 3px"><div class="file-icon"></div></td>
+                                <td style="padding: 0">
+                                    <div style="position: relative; padding: 8px;">
+                                        <strong class="file-name"></strong>
+                                        <div class="file-progress-bar"></div>
+                                    </div>
+                                </td>
+                                <td><span class="file-size text-muted"></span></td>
+                                <td class="actions text-right" style="padding: 0 4px;">
+                                    <div class="file-status" data-toggle="tooltip" style="margin: 8px;"><i class="icon"></i> <span class="text"></span></div>
+                                    <a data-toggle="tooltip" class="btn btn-link btn-download-file" target="_blank"><i class="icon icon-download-alt"></i></a>
+                                    <button type="button" data-toggle="tooltip" class="btn btn-link btn-reset-file" title="Repeat"><i class="icon icon-repeat"></i></button>
+                                    <button type="button" data-toggle="tooltip" class="btn btn-link btn-rename-file" title="Rename"><i class="icon icon-pencil"></i></button>
+                                    <button type="button" data-toggle="tooltip" title="Remove" class="btn btn-link btn-delete-file"><i class="icon icon-trash text-danger"></i></button>
+                                </td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td colspan="4" style="padding: 4px 0">
+                                    <div style="position: relative;">
+                                        <div class="uploader-status pull-right text-muted" style="margin-top: 5px;"></div>
+                                        <button type="button" class="btn btn-link uploader-btn-browse"><i class="icon icon-plus"></i> 选择文件</button>
+                                        <button type="button" class="btn btn-link uploader-btn-start"><i class="icon icon-cloud-upload"></i> 开始上传</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -127,20 +155,20 @@
 <script src="../lib/jquery/jquery-1.11.0.min.js"></script>
 <script src="../lib/zui/js/zui.min.js"></script>
 <script src="../lib/zui/lib/uploader/zui.uploader.min.js"></script>
-<!--<script src="../lib/tui/tui-editor-Editor-full.js"></script>-->
 <!--<script src="../lib/zui/js/doc.js"></script>-->
 <script>
     $(function () {
-        $('#assetsUploader').uploader({});
+        $('#assetsUploader').uploader({
+            url: 'url/for/upload/file',
+            onUploadFile: function (file) {
+                alert('开始上传');
+            },
+            staticFiles: [
+                {name: 'zui.js', size: 216159, url: 'http://zui.sexy'},
+                {name: 'zui.css', size: 106091}
+            ]
+        });
     });
-    
-    // var editor = new tui.Editor({
-    //     el: document.querySelector('#description'),
-    //     initialEditType: 'markdown',
-    //     previewStyle: 'tab',
-    //     language: 'zh',
-    //     height: '300px'
-    // });
 </script>
 </body>
 </html>
