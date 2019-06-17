@@ -23,3 +23,7 @@ minio:
   access-key: dev
   secret-key: 123456789
   bucket: releases
+
+# 本系统的相关配置项.
+system:
+  baseUrl: http://127.0.0.1:5050
