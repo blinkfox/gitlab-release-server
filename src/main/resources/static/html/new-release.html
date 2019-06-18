@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh_cn">
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -75,20 +75,20 @@
             <div class="form-group">
                 <label for="ref" class="col-sm-2">引用标记</label>
                 <div class="col-sm-3">
-                    <input type="password" class="form-control" id="ref" placeholder="可以是 commit SHA、标签名称或分支名称">
+                    <input type="password" class="form-control" id="ref" placeholder="可填写 commit SHA、标签名称或分支名称">
                 </div>
-                <div class="ref-help help-block">如果标签名称不存在，则必须填写该值，它可以是提交SHA、另一个标签名称或者分支名。</div>
+                <div class="ref-help help-block">如果标签名称在 GitLab 仓库中不存在，则必须填写该值。
+                    更多介绍请<a href="https://gitlab.com/help/api/releases/index.md#create-a-release" target="_blank">参考这里</a>。</div>
             </div>
             <div class="form-group">
-                <label for="description" class="col-sm-2">版本描述</label>
-                <div class="col-sm-10">
-                    <!--<div id="description"></div>-->
+                <label for="description" class="required col-sm-2">版本描述</label>
+                <div class="col-sm-8">
                     <textarea id="description" rows="8" class="form-control" placeholder="请填写 Markdown 格式的版本描述信息。"></textarea>
                 </div>
             </div>
             <div class="form-group">
                 <label for="assetsUploader" class="col-sm-2">上传资源</label>
-                <div class="col-sm-10">
+                <div class="col-sm-8">
                     <div id="assetsUploader" class="uploader">
                         <div class="uploader-message text-center">
                             <div class="content"></div>
@@ -138,7 +138,7 @@
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <button type="submit" class="btn btn-default">登录</button>
+                    <button type="submit" id="releaseBtn" class="btn btn-primary"><i class="icon icon-hand-up"></i> 发布版本</button>
                 </div>
             </div>
         </form>
@@ -148,7 +148,7 @@
 <footer>
     <div class="container">
         <hr>
-        <p class="text-muted small">文档共 <span class="text-page-count"></span> 篇内容，<span class="text-external-count"></span> 个外链主题</p>
+        <p class="text-muted small">欢迎使用 GitLab Release 版本发布服务。</p>
     </div>
 </footer>
 
@@ -158,6 +158,7 @@
 <!--<script src="../lib/zui/js/doc.js"></script>-->
 <script>
     $(function () {
+        // 上传资源文件的相关代码.
         $('#assetsUploader').uploader({
             url: 'url/for/upload/file',
             onUploadFile: function (file) {
@@ -168,6 +169,10 @@
                 {name: 'zui.css', size: 106091}
             ]
         });
+
+        $('#releaseBtn').on('click', function () {
+            alert('开始发布!');
+        })
     });
 </script>
 </body>
