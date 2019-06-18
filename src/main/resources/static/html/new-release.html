@@ -40,21 +40,21 @@
 <div class="container">
     <fieldset>
         <legend>项目信息</legend>
-        <form class="form-horizontal">
+        <form id="project-form" class="form-horizontal">
             <div class="form-group">
                 <label for="gitlabUrl" class="required col-sm-2">GitLab 地址</label>
                 <div class="col-sm-3">
-                    <input type="text" class="form-control" id="gitlabUrl" placeholder="如：https://gitlab.com">
+                    <input type="text" class="form-control" id="gitlabUrl" value="https://gitlab.com" placeholder="如：https://gitlab.com">
                 </div>
                 <label for="token" class="required col-sm-2">访问令牌</label>
                 <div class="col-sm-3">
-                    <input type="password" class="form-control" id="token" placeholder="可通过 API 访问的令牌（token）">
+                    <input type="text" class="form-control" id="token" placeholder="可通过 API 访问的令牌（token）">
                 </div>
             </div>
             <div class="form-group">
                 <label for="projectId" class="required col-sm-2">项目ID</label>
                 <div class="col-sm-3">
-                    <input type="password" class="form-control" id="projectId" placeholder="请正确填写 GitLab 的项目 ID">
+                    <input type="text" class="form-control" id="projectId" placeholder="请正确填写 GitLab 的项目 ID">
                 </div>
             </div>
         </form>
@@ -65,17 +65,17 @@
             <div class="form-group">
                 <label for="name" class="required col-sm-2">版本标题</label>
                 <div class="col-sm-3">
-                    <input type="password" class="form-control" id="name" placeholder="密码">
+                    <input type="text" class="form-control" id="name" placeholder="如：v1.2.0重大版本更新">
                 </div>
                 <label for="tagName" class="required col-sm-2">标签名称</label>
                 <div class="col-sm-3">
-                    <input type="text" class="form-control" id="tagName" placeholder="选择一个已经存在的标签.">
+                    <input type="text" class="form-control" id="tagName" placeholder="发布版本的标签，如：v1.2.0">
                 </div>
             </div>
             <div class="form-group">
                 <label for="ref" class="col-sm-2">引用标记</label>
                 <div class="col-sm-3">
-                    <input type="password" class="form-control" id="ref" placeholder="可填写 commit SHA、标签名称或分支名称">
+                    <input type="text" class="form-control" id="ref" placeholder="可填写 commit SHA、标签名称或分支名称">
                 </div>
                 <div class="ref-help help-block">如果标签名称在 GitLab 仓库中不存在，则必须填写该值。
                     更多介绍请<a href="https://gitlab.com/help/api/releases/index.md#create-a-release" target="_blank">参考这里</a>。</div>
@@ -136,13 +136,18 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <button type="submit" id="releaseBtn" class="btn btn-primary"><i class="icon icon-hand-up"></i> 发布版本</button>
-                </div>
-            </div>
         </form>
     </fieldset>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-8">
+            <div id="form-tip" class="alert alert-warning hide">...</div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-8">
+            <button id="releaseBtn" class="btn btn-primary"><i class="icon icon-hand-up"></i> 发布版本</button>
+        </div>
+    </div>
 </div>
 
 <footer>
@@ -158,6 +163,57 @@
 <!--<script src="../lib/zui/js/doc.js"></script>-->
 <script>
     $(function () {
+        var gitlabUrl, token, projectId,
+            name, tagName, ref, description;
+
+
+        function validForm() {
+            gitlabUrl = $('#gitlabUrl').val();
+            token = $('#token').val();
+            projectId = $('#projectId').val();
+            name = $('#name').val();
+            tagName = $('#tagName').val();
+            ref = $('#ref').val();
+            description = $('#description').val();
+
+            var $formTip = $('#form-tip');
+            if (!gitlabUrl) {
+                $formTip.html('请填写有效的 GitLab 仓库地址，如：https://gitlab.com').removeClass('hide');
+                return false;
+            }
+            if (!token || $.trim(token).length === 0) {
+                $formTip.html('请填写正确的 GitLab API 访问令牌（token），如：gDybLx3yrUK_HLp3qPjS').removeClass('hide');
+                return false;
+            }
+            if (!projectId) {
+                $formTip.html('请填写 GitLab 项目仓库的 ID，如：253').removeClass('hide');
+                return false;
+            }
+            if (!name) {
+                $formTip.html('请填写本次发布的版本标题，如："v1.2.0重大版本更新"').removeClass('hide');
+                return false;
+            }
+            if (!tagName) {
+                $formTip.html('请填写本次发布的标签名称，如：v1.2.0').removeClass('hide');
+                return false;
+            }
+            if (!description) {
+                $formTip.html('请使用 Markdown 语法格式来填写版本描述信息。').removeClass('hide');
+                return false;
+            }
+
+            $formTip.html('').addClass('hide');
+            return true;
+        }
+
+        $('#releaseBtn').on('click', function () {
+            if (!validForm()) {
+                return;
+            }
+
+            console.log('开始上传！');
+        });
+
         // 上传资源文件的相关代码.
         $('#assetsUploader').uploader({
             url: 'url/for/upload/file',
@@ -169,10 +225,6 @@
                 {name: 'zui.css', size: 106091}
             ]
         });
-
-        $('#releaseBtn').on('click', function () {
-            alert('开始发布!');
-        })
     });
 </script>
 </body>
