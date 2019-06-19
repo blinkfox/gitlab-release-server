@@ -166,6 +166,7 @@
         // 几大信息的全局变量.
         var gitlabUrl, token, projectId,
             name, tagName, ref, description;
+        var uploading = false;
 
         /**
          * 校验表单填写是否完善.
@@ -220,39 +221,55 @@
                 return;
             }
 
+            // 判断是否正在上传.
+            if (uploading) {
+                alert('文件正在上传中，请稍后提交!');
+                return;
+            }
+
             // 发起 ajax 请求.
+            var params = {
+                gitlabUrl: gitlabUrl,
+                token: token,
+                projectId: projectId,
+                name: name,
+                tagName: tagName,
+                ref: ref,
+                description: description
+            };
             $.ajax({
                 type: 'POST',
-                url: '/',
+                url: 'http://127.0.0.1:5050/release',
+                contentType:'application/json;charset=utf-8',
                 dataType: 'json',
-                data: {
-                    gitlabUrl: gitlabUrl,
-                    token: token,
-                    projectId: projectId,
-                    name: name,
-                    tagName: tagName,
-                    ref: ref,
-                    description: description
-                },
-                success: function() {
-                    alert('成功.')
+                data: JSON.stringify(params),
+                success: function(result) {
+                    console.log('成功.');
                 },
                 error: function() {
-                    alert('失败！')
+                    console.log('失败！');
                 }
             });
         });
 
         // 上传资源文件的相关代码.
         $('#assetsUploader').uploader({
-            url: 'url/for/upload/file',
+            url: 'http://127.0.0.1:5050/upload/assets',
             onUploadFile: function (file) {
                 alert('开始上传');
+                uploading = true;
             },
-            staticFiles: [
-                {name: 'zui.js', size: 216159, url: 'http://zui.sexy'},
-                {name: 'zui.css', size: 106091}
-            ]
+            onFileUploaded: function(file, responseObject) {
+                console.log('上传完了一个文件.');
+                console.log(file);
+            },
+            onUploadComplete: function (files) {
+                console.log('所有文件上传完毕!');
+                uploading = false;
+            },
+            onError: function () {
+                alert('上传出错！');
+            }
         });
     });
 </script>

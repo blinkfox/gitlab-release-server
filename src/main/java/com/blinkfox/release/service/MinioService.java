@@ -15,6 +15,8 @@ import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+
 /**
  * Minio 相关操作的 Service 服务类.
  *
@@ -73,10 +75,11 @@ public class MinioService {
      * 上传文件到 Minio 中.
      *
      * @param objectName 对象名.
+     * @param in 输入流
      */
-    public void putObject(String objectName, String fileName) {
+    public void putObject(String objectName, InputStream in) {
         try {
-            minioClient.putObject(bucket,  objectName, fileName, ContentType.APPLICATION_OCTET_STREAM.toString());
+            minioClient.putObject(bucket,  objectName, in, ContentType.APPLICATION_OCTET_STREAM.toString());
             log.info("上传文件到 Minio 中成功.");
         } catch (Exception e) {
             throw new RunException("上传文件过程中发生了错误!", e);
