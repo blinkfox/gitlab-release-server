@@ -255,20 +255,17 @@
         // 上传资源文件的相关代码.
         $('#assetsUploader').uploader({
             url: 'http://127.0.0.1:5050/upload/assets',
+            max_retries: 0,
             onUploadFile: function (file) {
-                alert('开始上传');
+                console.log('开始上传的监听事件！');
                 uploading = true;
-            },
-            onFileUploaded: function(file, responseObject) {
-                console.log('上传完了一个文件.');
-                console.log(file);
             },
             onUploadComplete: function (files) {
                 console.log('所有文件上传完毕!');
                 uploading = false;
             },
             onError: function () {
-                alert('上传出错！');
+                console.log('上传出错！');
             }
         });
     });
