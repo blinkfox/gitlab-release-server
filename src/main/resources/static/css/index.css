@@ -1,0 +1,16 @@
+#header {
+    padding-top: 0;
+}
+.navbar-inverse {
+    border-color: #145ccd;
+}
+.navbar {
+    position: relative;
+    min-height: 40px;
+    margin-bottom: 20px;
+    border-radius: 0;
+    border: none;
+}
+.icon-logo {
+    font-size: 1.8rem;
+}
