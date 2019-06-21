@@ -1,5 +1,6 @@
-package com.blinkfox.release.bean.release;
+package com.blinkfox.release.bean.link;
 
+import com.blinkfox.release.bean.release.ProjectInfo;
 import com.blinkfox.release.kits.StringKit;
 
 import lombok.Getter;

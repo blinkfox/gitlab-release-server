@@ -1,5 +1,6 @@
 package com.blinkfox.release.service;
 
+import com.blinkfox.release.config.SystemConfig;
 import com.blinkfox.release.consts.Const;
 import com.blinkfox.release.exception.RunException;
 import com.blinkfox.release.kits.StringKit;
@@ -7,12 +8,12 @@ import com.blinkfox.release.kits.StringKit;
 import io.minio.MinioClient;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -26,19 +27,20 @@ import java.io.InputStream;
 @Service
 public class MinioService {
 
-    @Value("${minio.endpoint}")
-    private String endpoint;
-
-    @Value("${minio.access-key}")
-    private String accessKey;
-
-    @Value("${minio.secret-key}")
-    private String secretKey;
-
-    @Value("${minio.bucket}")
-    private String bucket;
+    @Resource
+    private SystemConfig systemConfig;
 
     private MinioClient minioClient;
+
+    /**
+     * MinIO 的访问地址.
+     */
+    private String endpoint;
+
+    /**
+     * MinIO 的桶.
+     */
+    private String bucket;
 
     /**
      * Bean 创建后初始化 MinioClient 实例，并检查是否存在配置的桶，如果不存在就创建一个.
@@ -47,8 +49,10 @@ public class MinioService {
     @PostConstruct
     public void init() {
         try {
+            this.endpoint = systemConfig.getEndpoint();
             endpoint = endpoint.endsWith(Const.SEP) ? endpoint.substring(0, endpoint.length() - 1) : endpoint;
-            this.minioClient = new MinioClient(endpoint, accessKey, secretKey);
+            this.minioClient = new MinioClient(endpoint, systemConfig.getAccessKey(), systemConfig.getSecretKey());
+            this.bucket = systemConfig.getBucket();
             this.checkAndInitBucket();
         } catch (Exception e) {
             log.error("初始化创建 MinioClient 出错，请检查！", e);
@@ -72,28 +76,20 @@ public class MinioService {
     }
 
     /**
-     * 上传文件到 Minio 中.
+     * 上传文件到 Minio 中，并返回该对象可访问的 URL 地址.
      *
      * @param objectName 对象名.
      * @param in 输入流
+     * @return URL 地址
      */
-    public void putObject(String objectName, InputStream in) {
+    public String putObject(String objectName, InputStream in) {
         try {
             minioClient.putObject(bucket,  objectName, in, ContentType.APPLICATION_OCTET_STREAM.toString());
             log.info("上传文件到 Minio 中成功.");
+            return StringUtils.join(endpoint, Const.SEP, bucket, Const.SEP, objectName);
         } catch (Exception e) {
             throw new RunException("上传文件过程中发生了错误!", e);
         }
-    }
-
-    /**
-     * 获取对象的的 URL 链接地址.
-     *
-     * @param objectName 对象名(包含相对路径)
-     * @return URL 地址
-     */
-    public String getObjectUrl(String objectName) {
-        return StringUtils.join(endpoint, Const.SEP, bucket, Const.SEP, objectName);
     }
 
 }

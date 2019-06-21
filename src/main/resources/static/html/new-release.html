@@ -89,50 +89,17 @@
             <div class="form-group">
                 <label for="assetsUploader" class="col-sm-2">上传资源</label>
                 <div class="col-sm-8">
-                    <div id="assetsUploader" class="uploader">
+                    <div id='assetsUploader' class="uploader">
                         <div class="uploader-message text-center">
                             <div class="content"></div>
                             <button type="button" class="close">×</button>
                         </div>
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th colspan="2">文件名</th>
-                                <th style="width: 100px">大小</th>
-                                <th style="width: 160px; text-align: center;">状态/操作</th>
-                            </tr>
-                            </thead>
-                            <tbody class="uploader-files">
-                            <tr class="file template">
-                                <td style="width: 38px; padding: 3px"><div class="file-icon"></div></td>
-                                <td style="padding: 0">
-                                    <div style="position: relative; padding: 8px;">
-                                        <strong class="file-name"></strong>
-                                        <div class="file-progress-bar"></div>
-                                    </div>
-                                </td>
-                                <td><span class="file-size text-muted"></span></td>
-                                <td class="actions text-right" style="padding: 0 4px;">
-                                    <div class="file-status" data-toggle="tooltip" style="margin: 8px;"><i class="icon"></i> <span class="text"></span></div>
-                                    <a data-toggle="tooltip" class="btn btn-link btn-download-file" target="_blank"><i class="icon icon-download-alt"></i></a>
-                                    <button type="button" data-toggle="tooltip" class="btn btn-link btn-reset-file" title="Repeat"><i class="icon icon-repeat"></i></button>
-                                    <button type="button" data-toggle="tooltip" class="btn btn-link btn-rename-file" title="Rename"><i class="icon icon-pencil"></i></button>
-                                    <button type="button" data-toggle="tooltip" title="Remove" class="btn btn-link btn-delete-file"><i class="icon icon-trash text-danger"></i></button>
-                                </td>
-                            </tr>
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <td colspan="4" style="padding: 4px 0">
-                                    <div style="position: relative;">
-                                        <div class="uploader-status pull-right text-muted" style="margin-top: 5px;"></div>
-                                        <button type="button" class="btn btn-link uploader-btn-browse"><i class="icon icon-plus"></i> 选择文件</button>
-                                        <button type="button" class="btn btn-link uploader-btn-start"><i class="icon icon-cloud-upload"></i> 开始上传</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tfoot>
-                        </table>
+                        <div class="uploader-files file-list file-list-lg" data-drag-placeholder="请拖拽文件到此处"></div>
+                        <div class="uploader-actions">
+                            <div class="uploader-status pull-right text-muted"></div>
+                            <button type="button" class="btn btn-link uploader-btn-browse"><i class="icon icon-plus"></i> 选择文件</button>
+                            <button type="button" class="btn btn-link uploader-btn-start"><i class="icon icon-cloud-upload"></i> 开始上传</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -163,10 +130,13 @@
 <!--<script src="../lib/zui/js/doc.js"></script>-->
 <script>
     $(function () {
-        // 几大信息的全局变量.
+        // 发布信息的全局变量.
         var gitlabUrl, token, projectId,
             name, tagName, ref, description;
+        // 上传状态.
         var uploading = false;
+        // 资源链接的数组集合.
+        var uploadLinks = [];
 
         /**
          * 校验表单填写是否完善.
@@ -183,7 +153,7 @@
             ref = $('#ref').val();
             description = $('#description').val();
 
-            // 对重要数据做校验检查.
+            // 对表单的重要数据做校验检查.
             var $formTip = $('#form-tip');
             if (!gitlabUrl) {
                 $formTip.html('请填写有效的 GitLab 仓库地址，如：https://gitlab.com').removeClass('hide');
@@ -210,6 +180,12 @@
                 return false;
             }
 
+            // 如果文件正在上传，也不能提交.
+            if (uploading) {
+                $formTip.html('有文件正在上传中，请稍候在提交发布！').removeClass('hide');
+                return false;
+            }
+
             $formTip.html('').addClass('hide');
             return true;
         }
@@ -221,12 +197,6 @@
                 return;
             }
 
-            // 判断是否正在上传.
-            if (uploading) {
-                alert('文件正在上传中，请稍后提交!');
-                return;
-            }
-
             // 发起 ajax 请求.
             var params = {
                 gitlabUrl: gitlabUrl,
@@ -235,7 +205,8 @@
                 name: name,
                 tagName: tagName,
                 ref: ref,
-                description: description
+                description: description,
+                assets: {links: uploadLinks}
             };
             $.ajax({
                 type: 'POST',
@@ -256,16 +227,25 @@
         $('#assetsUploader').uploader({
             url: 'http://127.0.0.1:5050/upload/assets',
             max_retries: 0,
+            chunk_size: '5mb',
             onUploadFile: function (file) {
                 console.log('开始上传的监听事件！');
                 uploading = true;
             },
+            onFileUploaded: function (file, responseObject) {
+                if (responseObject.status === 200) {
+                    var result = JSON.parse(responseObject.response);
+                    uploadLinks.push({name: result.name, url: result.url});
+                }
+            },
             onUploadComplete: function (files) {
-                console.log('所有文件上传完毕!');
+                // 所有文件上传完毕，改变上传的状态.
                 uploading = false;
+                console.log(uploadLinks);
+                console.log('所有文件上传完毕!');
             },
             onError: function () {
-                console.log('上传出错！');
+                $('#form-tip').html('有文件上传出错，请取消重新上传或联系管理员！').removeClass('hide');
             }
         });
     });

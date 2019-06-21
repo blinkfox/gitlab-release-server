@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.blinkfox.release.bean.release.BaseLinkInfo;
-import com.blinkfox.release.bean.release.LinkInfo;
+import com.blinkfox.release.bean.link.BaseLinkInfo;
+import com.blinkfox.release.bean.link.LinkInfo;
 
 import org.junit.Assert;
 import org.junit.Ignore;

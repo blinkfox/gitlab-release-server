@@ -1,4 +1,4 @@
-package com.blinkfox.release.bean.release;
+package com.blinkfox.release.bean.link;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

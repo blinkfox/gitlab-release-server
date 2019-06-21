@@ -1,6 +1,6 @@
 package com.blinkfox.release.service;
 
-import com.blinkfox.release.bean.release.LinkInfo;
+import com.blinkfox.release.bean.link.LinkInfo;
 import com.blinkfox.release.kits.HttpKit;
 
 import java.util.HashMap;

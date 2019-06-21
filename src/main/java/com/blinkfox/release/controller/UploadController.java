@@ -1,7 +1,15 @@
 package com.blinkfox.release.controller;
 
+import com.blinkfox.release.kits.StringKit;
 import com.blinkfox.release.service.MinioService;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Resource;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,11 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * UploadController.
@@ -37,11 +40,14 @@ public class UploadController {
      */
     @PostMapping("/assets")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> uploadAssets(@RequestParam("file") MultipartFile file)
+    public ResponseEntity<Map<String, Object>> uploadAssets(@RequestParam("file") MultipartFile file)
             throws IOException {
         log.info("fileName: {}", file.getOriginalFilename());
-        minioService.putObject(file.getOriginalFilename(), file.getInputStream());
-        Map<String, String> map = new HashMap<>(8);
+        Map<String, Object> map = new HashMap<>(8);
+        map.put("status", 200);
+        map.put("id", StringKit.getUuid());
+        map.put("name", file.getOriginalFilename());
+        map.put("url", minioService.putObject(file.getOriginalFilename(), file.getInputStream()));
         return ResponseEntity.ok(map);
     }
 

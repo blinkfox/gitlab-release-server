@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.blinkfox.release.bean.release.AssetsInfo;
-import com.blinkfox.release.bean.release.BaseLinkInfo;
+import com.blinkfox.release.bean.link.BaseLinkInfo;
 import com.blinkfox.release.bean.release.ReleaseInfo;
 
 import java.util.ArrayList;
