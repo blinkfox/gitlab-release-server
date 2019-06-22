@@ -16,4 +16,14 @@ public class Const {
      */
     public static final String SEP = "/";
 
+    /**
+     * https 常量.
+     */
+    public static final String HTTPS = "https://";
+
+    /**
+     * http 常量.
+     */
+    public static final String HTTP = "http://";
+
 }

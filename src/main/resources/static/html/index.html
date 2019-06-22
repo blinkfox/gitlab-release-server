@@ -13,7 +13,7 @@
 
 <body>
 
-<header id="header" class="bg-primary">
+<header id="header" class="index-cover bg-primary">
     <div class="navbar navbar-inverse" id="navbar" role="banner">
         <div class="container">
             <div class="navbar-header">
@@ -46,17 +46,6 @@
                     <a href="#start-release" class="btn btn-white btn-lg">开始发布 <i class="icon icon-arrow-down"></i></a>
                 </div>
             </div>
-            <div id="search">
-                <div id="searchForm">
-                    <input type="text" class="form-control input-lg" id="searchInput" placeholder="按钮, control, icon-star..."/>
-                    <i class="icon icon-search"></i>
-                    <button id="searchHelpBtn" type="button" class="btn btn-link"><i class="icon icon-question"></i></button>
-                </div>
-            </div>
-        </div>
-        <div class="text-center" id="ad">
-            <a id="mzui" class="hidden" href="http://zui.sexy/m/" target="_blank"><i class="icon icon-diamond"></i> &nbsp; MZUI &nbsp; // <span class="hidden-xs inline">为移动端设计，</span>基于 Flex 的 UI 框架</a>
-            <a id="xuanxuan" href="http://xuan.im" target="_blank"><i class="icon icon-xuanxuan"></i>喧喧 &nbsp; // <span class="hidden-xs inline">免费、开源、安全、跨平台的</span>聊天方案</a>
         </div>
     </div>
 </header>
@@ -244,10 +233,10 @@
                 dataType: 'json',
                 data: JSON.stringify(params),
                 success: function(result) {
-                    console.log('成功.');
+                    alert('发布成功.');
                 },
                 error: function() {
-                    console.log('失败！');
+                    alert('发布失败！');
                 }
             });
         });

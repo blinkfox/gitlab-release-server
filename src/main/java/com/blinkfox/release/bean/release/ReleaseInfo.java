@@ -4,6 +4,7 @@ import com.blinkfox.release.kits.StringKit;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -13,6 +14,7 @@ import lombok.experimental.Accessors;
  */
 @Setter
 @Getter
+@ToString
 @Accessors(chain = true)
 public class ReleaseInfo extends ProjectInfo {
 

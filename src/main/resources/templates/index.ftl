@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GitLab Release 版本服务</title>
-    <link rel="stylesheet" href="../lib/zui/css/zui.min.css">
-    <link rel="stylesheet" href="../lib/zui/lib/uploader/zui.uploader.min.css" />
-    <link rel="stylesheet" href="../lib/zui/css/doc.min.css">
-    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="lib/zui/css/zui.min.css">
+    <link rel="stylesheet" href="lib/zui/lib/uploader/zui.uploader.min.css" />
+    <link rel="stylesheet" href="lib/zui/css/doc.min.css">
+    <link rel="stylesheet" href="css/index.css" />
 </head>
 
 <body>
@@ -41,22 +41,7 @@
             <div id="heading">
                 <h1>Release 服务</h1>
                 <p>这是一个用于发布和编辑 GitLab Releases 版本的服务，同时也支持上传和管理各个版本的资源文件。</p>
-                <div id="download">
-                    <a data-fmt-href="docs/download/zui-{version}-dist.zip" class="btn btn-primary btn-lg format-pkg">访问源码 <i class="icon icon-github"></i></a>
-                    <a href="#start-release" class="btn btn-white btn-lg">开始发布 <i class="icon icon-arrow-down"></i></a>
-                </div>
             </div>
-            <div id="search">
-                <div id="searchForm">
-                    <input type="text" class="form-control input-lg" id="searchInput" placeholder="按钮, control, icon-star..."/>
-                    <i class="icon icon-search"></i>
-                    <button id="searchHelpBtn" type="button" class="btn btn-link"><i class="icon icon-question"></i></button>
-                </div>
-            </div>
-        </div>
-        <div class="text-center" id="ad">
-            <a id="mzui" class="hidden" href="http://zui.sexy/m/" target="_blank"><i class="icon icon-diamond"></i> &nbsp; MZUI &nbsp; // <span class="hidden-xs inline">为移动端设计，</span>基于 Flex 的 UI 框架</a>
-            <a id="xuanxuan" href="http://xuan.im" target="_blank"><i class="icon icon-xuanxuan"></i>喧喧 &nbsp; // <span class="hidden-xs inline">免费、开源、安全、跨平台的</span>聊天方案</a>
         </div>
     </div>
 </header>
@@ -153,19 +138,26 @@
     </div>
 </footer>
 
-<script src="../lib/jquery/jquery-1.11.0.min.js"></script>
-<script src="../lib/zui/js/zui.min.js"></script>
-<script src="../lib/zui/lib/uploader/zui.uploader.min.js"></script>
-<!--<script src="../lib/zui/js/doc.js"></script>-->
+<script src="lib/jquery/jquery-1.11.0.min.js"></script>
+<script src="lib/zui/js/zui.min.js"></script>
+<script src="lib/zui/lib/uploader/zui.uploader.min.js"></script>
 <script>
     $(function () {
         // 发布信息的全局变量.
         var gitlabUrl, token, projectId,
             name, tagName, ref, description;
-        // 上传状态.
-        var uploading = false;
+        // 上传状态，发布状态.
+        var uploading = false,
+            isReleaseing = false;
         // 资源链接的数组集合.
         var uploadLinks = [];
+
+        // 上传文件对象.
+        var $uploader = $('#assetsUploader');
+
+        function isBlank(str) {
+            return !str || $.trim(str).length === 0;
+        }
 
         /**
          * 校验表单填写是否完善.
@@ -184,27 +176,27 @@
 
             // 对表单的重要数据做校验检查.
             var $formTip = $('#form-tip');
-            if (!gitlabUrl) {
+            if (isBlank(gitlabUrl)) {
                 $formTip.html('请填写有效的 GitLab 仓库地址，如：https://gitlab.com').removeClass('hide');
                 return false;
             }
-            if (!token || $.trim(token).length === 0) {
+            if (isBlank(token)) {
                 $formTip.html('请填写正确的 GitLab API 访问令牌（token），如：gDybLx3yrUK_HLp3qPjS').removeClass('hide');
                 return false;
             }
-            if (!projectId) {
+            if (isBlank(projectId)) {
                 $formTip.html('请填写 GitLab 项目仓库的 ID，如：253').removeClass('hide');
                 return false;
             }
-            if (!name) {
+            if (isBlank(name)) {
                 $formTip.html('请填写本次发布的版本标题，如："v1.2.0重大版本更新"').removeClass('hide');
                 return false;
             }
-            if (!tagName) {
+            if (isBlank(tagName)) {
                 $formTip.html('请填写本次发布的标签名称，如：v1.2.0').removeClass('hide');
                 return false;
             }
-            if (!description) {
+            if (isBlank(description)) {
                 $formTip.html('请使用 Markdown 语法格式来填写版本描述信息。').removeClass('hide');
                 return false;
             }
@@ -219,12 +211,40 @@
             return true;
         }
 
+        /**
+         * 清空表单数据.
+         */
+        function clearFormData(formId) {
+            $(':input', '#' + formId)
+                .not(':button, :submit, :reset, :hidden')
+                .val('')
+                .removeAttr('checked')
+                .removeAttr('selected');
+        }
+
+        /**
+         * 清空版本信息和状态信息.
+         */
+        function clearForm() {
+            clearFormData('release-form');
+            uploadLinks = [];
+        }
+
         // 发布版本的按钮事件.
         $('#releaseBtn').on('click', function () {
             // 校验表单
             if (!validForm()) {
                 return;
             }
+            if (isReleaseing) {
+                new $.zui.Messager('版本正在发布中，请稍候...', {
+                    type: 'warning'
+                }).show();
+                return;
+            }
+
+            // 设置发版状态为true.
+            isReleaseing = true;
 
             // 发起 ajax 请求.
             var params = {
@@ -239,27 +259,76 @@
             };
             $.ajax({
                 type: 'POST',
-                url: 'http://127.0.0.1:5050/releases/',
+                url: '/releases/',
                 contentType:'application/json;charset=utf-8',
                 dataType: 'json',
                 data: JSON.stringify(params),
                 success: function(result) {
-                    console.log('成功.');
+                    var successMsger = new $.zui.Messager('恭喜你，新版本【'+ tagName + '】已发布成功，请前往 GitLab 版本页查看新版本!', {
+                        type: 'success'
+                    });
+                    successMsger.show();
+                    clearForm();
+                    isReleaseing = false;
                 },
                 error: function() {
-                    console.log('失败！');
+                    var errorMsger = new $.zui.Messager('发布失败！请检查你填写的版本发布的信息是否正确！', {
+                        type: 'danger'
+                    });
+                    errorMsger.show();
+                    isReleaseing = false;
                 }
             });
         });
 
+        /**
+         * 移除文件.
+         *
+         * @param files 多个文件对象.
+         */
+        function removeFiles(files) {
+            var uploader = $uploader.data('zui.uploader');
+            for (var i = 0, len = files.length; i < len; i++) {
+                uploader.removeFile(files[i]);
+            }
+        }
+
         // 上传资源文件的相关代码.
-        $('#assetsUploader').uploader({
-            url: 'http://127.0.0.1:5050/upload/assets',
+        $uploader.uploader({
+            url: '/upload/assets',
             max_retries: 0,
             chunk_size: '5mb',
-            onUploadFile: function (file) {
-                console.log('开始上传的监听事件！');
+            multipart_params: {
+                abc: 'a',
+            },
+            onFilesAdded: function(files) {
+                var $formTip = $('#form-tip');
+                // 判断 gitlabUrl 是否为空.
+                gitlabUrl = $('#gitlabUrl').val();
+                if (isBlank(gitlabUrl)) {
+                    $formTip.html('请填写有效的 GitLab 仓库地址，如：https://gitlab.com。').removeClass('hide');
+                    removeFiles(files);
+                    return false;
+                }
+
+                // 判断 projectId 是否为空.
+                projectId = $('#projectId').val();
+                if (isBlank(projectId)) {
+                    $formTip.html('请填写 GitLab 项目仓库的 ID，如：253。').removeClass('hide');
+                    removeFiles(files);
+                    return false;
+                }
+
+                $formTip.html('').addClass('hide');
+            },
+            onBeforeUpload: function (file) {
+                // 设置上传状态为true.
                 uploading = true;
+
+                // 设置上传参数.
+                var multipart_params = $uploader.data('zui.uploader').plupload.settings.multipart_params;
+                multipart_params.gitlabUrl = $('#gitlabUrl').val();
+                multipart_params.projectId = $('#projectId').val();
             },
             onFileUploaded: function (file, responseObject) {
                 if (responseObject.status === 200) {

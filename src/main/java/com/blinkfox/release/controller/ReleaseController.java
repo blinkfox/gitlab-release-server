@@ -1,9 +1,11 @@
 package com.blinkfox.release.controller;
 
 import com.blinkfox.release.bean.release.ReleaseInfo;
+import com.blinkfox.release.service.ReleaseService;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,16 +27,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/releases")
 public class ReleaseController {
 
+    @Resource
+    private ReleaseService releaseService;
+
     /**
      * index.html 首页请求.
      *
      * @return 字符串
      */
     @PostMapping("/")
-    public ResponseEntity<Map<String, String>> release(@RequestBody ReleaseInfo releaseInfo) {
-        log.info("release: {}", releaseInfo);
-        Map<String, String> map = new HashMap<>(8);
-        return ResponseEntity.ok(map);
+    public ResponseEntity<Map<String, Object>> release(@RequestBody ReleaseInfo releaseInfo) {
+        log.info("开始发布版本，版本信息为：{}", releaseInfo);
+        releaseService.createRelease(releaseInfo);
+        return ResponseEntity.ok(new HashMap<>(4));
     }
 
 }

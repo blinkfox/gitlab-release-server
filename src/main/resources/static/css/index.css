@@ -14,3 +14,10 @@
 .icon-logo {
     font-size: 1.8rem;
 }
+
+#heading {
+    padding-bottom: 20px;
+}
+#heading h1{
+    margin-bottom: 20px;
+}
