@@ -245,6 +245,11 @@
 
             // 设置发版状态为true.
             isReleaseing = true;
+            var loadingMsger = new $.zui.Messager('版本正在发布中，请稍候...', {
+                icon: 'bell',
+                time: 0
+            });
+            loadingMsger.show();
 
             // 发起 ajax 请求.
             var params = {
@@ -270,6 +275,7 @@
                     successMsger.show();
                     clearForm();
                     isReleaseing = false;
+                    loadingMsger.hide();
                 },
                 error: function() {
                     var errorMsger = new $.zui.Messager('发布失败！请检查你填写的版本发布的信息是否正确！', {
@@ -277,6 +283,7 @@
                     });
                     errorMsger.show();
                     isReleaseing = false;
+                    loadingMsger.hide();
                 }
             });
         });
