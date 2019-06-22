@@ -60,16 +60,18 @@
                 <div class="col-sm-3">
                     <input type="text" class="form-control" id="gitlabUrl" value="https://gitlab.com" placeholder="如：https://gitlab.com">
                 </div>
-                <label for="token" class="required col-sm-2">访问令牌</label>
-                <div class="col-sm-3">
-                    <input type="text" class="form-control" id="token" placeholder="可通过 API 访问的令牌（token）">
-                </div>
-            </div>
-            <div class="form-group">
                 <label for="projectId" class="required col-sm-2">项目ID</label>
                 <div class="col-sm-3">
                     <input type="text" class="form-control" id="projectId" placeholder="请正确填写 GitLab 的项目 ID">
                 </div>
+            </div>
+            <div class="form-group">
+                <label for="token" class="required col-sm-2">访问令牌</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="token" placeholder="可通过 API 访问的令牌（token）">
+                </div>
+                <div class="ref-help help-block">访问令牌（即：token）可以在 GitLab 的 <code>设置 -> 用户令牌</code> 页面中生成，
+                    生成时请务必勾选 <code>API</code> 选项。</div>
             </div>
         </form>
     </fieldset>
