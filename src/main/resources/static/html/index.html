@@ -131,6 +131,7 @@
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-8">
             <button id="releaseBtn" class="btn btn-primary"><i class="icon icon-hand-up"></i> 发布版本</button>
+            <button id="queryEditBtn" class="btn btn-info"><i class="icon icon-edit"></i> 查询编辑某个版本</button>
         </div>
     </div>
 </div>
@@ -152,7 +153,7 @@
         var gitlabUrl, token, projectId,
             name, tagName, ref, description;
         // 上传状态.
-        var uploading = false;
+        var uploading = false, isFinding = false;
         // 资源链接的数组集合.
         var uploadLinks = [];
 
@@ -178,7 +179,7 @@
                 return false;
             }
             if (!token || $.trim(token).length === 0) {
-                $formTip.html('请填写正确的 GitLab API 访问令牌（token），如：gDybLx3yrUK_HLp3qPjS').removeClass('hide');
+                $formTip.html('请填写正确的 GitLab API 访问令牌（token），如：gDybL237rUK_HLp3qPjS').removeClass('hide');
                 return false;
             }
             if (!projectId) {
@@ -195,6 +196,47 @@
             }
             if (!description) {
                 $formTip.html('请使用 Markdown 语法格式来填写版本描述信息。').removeClass('hide');
+                return false;
+            }
+
+            // 如果文件正在上传，也不能提交.
+            if (uploading) {
+                $formTip.html('有文件正在上传中，请稍候在提交发布！').removeClass('hide');
+                return false;
+            }
+
+            $formTip.html('').addClass('hide');
+            return true;
+        }
+
+        /**
+         * 校验需要查询编辑表单填写的信息是否完善.
+         *
+         * @returns 是否校验通过
+         */
+        function validQueryEditForm() {
+            // 获取最新的数据.
+            gitlabUrl = $('#gitlabUrl').val();
+            token = $('#token').val();
+            projectId = $('#projectId').val();
+            tagName = $('#tagName').val();
+
+            // 对表单的重要数据做校验检查.
+            var $formTip = $('#form-tip');
+            if (!gitlabUrl) {
+                $formTip.html('请填写有效的 GitLab 仓库地址，如：https://gitlab.com').removeClass('hide');
+                return false;
+            }
+            if (!token || $.trim(token).length === 0) {
+                $formTip.html('请填写正确的 GitLab API 访问令牌（token），如：gDybL237rUK_HLp3qPjS').removeClass('hide');
+                return false;
+            }
+            if (!projectId) {
+                $formTip.html('请填写 GitLab 项目仓库的 ID，如：253').removeClass('hide');
+                return false;
+            }
+            if (!tagName) {
+                $formTip.html('请填写本次发布的标签名称，如：v1.2.0').removeClass('hide');
                 return false;
             }
 
@@ -240,6 +282,38 @@
                 }
             });
         });
+
+        // 查询加载并编辑某个版本的数据.
+        $('#queryEditBtn').on('click', function () {
+            if (!validQueryEditForm()) {
+                return;
+            }
+
+            isFinding = true;
+            $.ajax({
+                type: 'POST',
+                url: 'http://127.0.0.1:5050/releases/' + tagName,
+                contentType:'application/json;charset=utf-8',
+                dataType: 'json',
+                data: JSON.stringify({
+                    gitlabUrl: gitlabUrl,
+                    token: token,
+                    projectId: projectId,
+                    tagName: tagName
+                }),
+                success: function(result) {
+                    isFinding = false;
+                    var releaseInfo = result.release;
+                    $('#name').val(releaseInfo.name);
+                    $('#description').val(releaseInfo.description);
+                },
+                error: function() {
+                    alert('查询某个 Release 版本失败！');
+                    isFinding = false;
+                }
+            });
+        });
+
 
         // 上传资源文件的相关代码.
         $('#assetsUploader').uploader({

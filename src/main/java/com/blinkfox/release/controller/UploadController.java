@@ -49,13 +49,13 @@ public class UploadController {
     public ResponseEntity<Map<String, Object>> uploadAssets(
             @RequestParam("file") MultipartFile file,
             @RequestParam("gitlabUrl") String gitlabUrl,
-            @RequestParam("projectId") String projectId) throws IOException {
-        log.info("gitlabUrl: {}", gitlabUrl);
-        log.info("projectId: {}", projectId);
+            @RequestParam("projectId") String projectId,
+            @RequestParam("tagName") String tagName) throws IOException {
+        log.info("gitlabUrl: {}, projectId: {}, tagName: {}.", gitlabUrl, projectId, tagName);
 
         // 上传对象到 MinIO 中，并返回 URL.
-        String url = minioService.putObject(this.buildObjectName(
-                this.getCodeByGitlabUrl(gitlabUrl), projectId, file.getOriginalFilename()), file.getInputStream());
+        String url = minioService.putObject(this.buildObjectName(this.getCodeByGitlabUrl(gitlabUrl),
+                projectId, tagName, file.getOriginalFilename()), file.getInputStream());
 
         // 返回结果，上传控件必须要求必须返回 status 为 200 才算成功.
         Map<String, Object> map = new HashMap<>(8);
@@ -84,11 +84,12 @@ public class UploadController {
      *
      * @param gitlabCode gitlabCode
      * @param projectId projectId
+     * @param tagName 标签名称
      * @param fileName fileName
      * @return 对象名
      */
-    private String buildObjectName(String gitlabCode, String projectId, String fileName) {
-        return gitlabCode + Const.SEP + projectId + Const.SEP + fileName;
+    private String buildObjectName(String gitlabCode, String projectId, String tagName, String fileName) {
+        return gitlabCode + Const.SEP + projectId + Const.SEP + tagName + Const.SEP + fileName;
     }
 
 }

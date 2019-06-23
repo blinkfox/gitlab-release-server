@@ -10,6 +10,10 @@ spring:
     active: local
   application:
     name: gitlab-release-server
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 2048MB
 
 # 服务端口，将默认为5050.
 server:

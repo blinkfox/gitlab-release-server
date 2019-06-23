@@ -3,6 +3,7 @@ package com.blinkfox.release.bean.release;
 import com.blinkfox.release.kits.StringKit;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -16,6 +17,7 @@ import lombok.experimental.Accessors;
 @Getter
 @ToString
 @Accessors(chain = true)
+@NoArgsConstructor
 public class ReleaseInfo extends ProjectInfo {
 
     /**
@@ -42,6 +44,21 @@ public class ReleaseInfo extends ProjectInfo {
      * 本次发布的 release 的资源信息.
      */
     private AssetsInfo assets;
+
+    /**
+     * 构造方法.
+     *
+     * @param gitlabUrl gitlabUrl
+     * @param projectId projectId
+     * @param token token
+     * @param tagName tagName
+     */
+    public ReleaseInfo(String gitlabUrl, String projectId, String token, String tagName) {
+        super.gitlabUrl = gitlabUrl;
+        super.projectId = projectId;
+        super.token = token;
+        this.tagName = tagName;
+    }
 
     /**
      * 拼接 release 的 URL 请求字符串，不含标签.

@@ -1,5 +1,6 @@
 package com.blinkfox.release.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.blinkfox.release.bean.release.ReleaseInfo;
 import com.blinkfox.release.kits.HttpKit;
 
@@ -54,9 +55,9 @@ public class ReleaseService {
     public String getReleaseByTagName(ReleaseInfo releaseInfo) {
         ResponseEntity<String> response = restTemplate.exchange(releaseInfo.getReleaseUrlWithTag(), HttpMethod.GET,
                 new HttpEntity<>(null, HttpKit.buildTokenHeaders(releaseInfo.getToken())), String.class);
-        String resultJson = response.getBody();
-        log.info("【获取单个 release 成功】响应结果: \n{}", resultJson);
-        return resultJson;
+        String resultJsonStr = response.getBody();
+        log.info("【获取单个 release 成功】响应结果: \n{}", resultJsonStr);
+        return resultJsonStr;
     }
 
     /**
