@@ -1,6 +1,5 @@
 package com.blinkfox.release.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.blinkfox.release.bean.release.ReleaseInfo;
 import com.blinkfox.release.kits.HttpKit;
 
