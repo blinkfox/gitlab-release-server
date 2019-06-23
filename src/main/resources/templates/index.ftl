@@ -354,7 +354,7 @@
 
         // 上传资源文件的相关代码.
         $uploader.uploader({
-            url: '/upload/assets',
+            url: '/releases/assets/file',
             max_retries: 0,
             chunk_size: '5mb',
             onFilesAdded: function(files) {

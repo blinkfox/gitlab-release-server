@@ -121,7 +121,7 @@
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-8">
             <button id="updateBtn" class="btn btn-primary"><i class="icon icon-hand-up"></i> 更新版本</button>
-            <button id="saveEditBtn" class="btn btn-danger"><i class="icon icon-edit"></i> 删除版本</button>
+            <button id="deleteReleaseBtn" class="btn btn-danger"><i class="icon icon-edit"></i> 删除版本</button>
         </div>
     </div>
 </div>
@@ -150,6 +150,25 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 <button id="delAssetBtn" type="button" class="btn btn-primary">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除本 Release 版本的对话框. -->
+<div id="delReleaseModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">关闭</span></button>
+                <h4 class="modal-title">标题</h4>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除本 Release 版本吗？删除后将不可恢复！</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="doDelReleaseBtn" type="button" class="btn btn-primary">确认删除</button>
             </div>
         </div>
     </div>
@@ -422,6 +441,58 @@
                 }
             });
         });
+
+        // 删除版本的按钮，将弹出确认模态框.
+        $('#deleteReleaseBtn').on('click', function () {
+            $('#delReleaseModal').modal({
+                keyboard: false,
+                show: true
+            });
+        });
+
+        // 真正确认删除的按钮请求.
+        $('#doDelReleaseBtn').on('click', function () {
+            if (releaseing) {
+                return;
+            }
+            releaseing = true;
+
+            // 操作中提示.
+            var loadingMsger = new $.zui.Messager('正在删除【'+ tagName + '】的 Release 版本，请稍候...', {
+                icon: 'bell',
+                time: 0
+            });
+            loadingMsger.show();
+
+            var url = '${baseUrl}/releases/' + $('#projectId').val() + '/' + $('#tagName').val()
+                    + '?gitlabUrl=' + $('#gitlabUrl').val() + '&token=' + $('#token').val();
+            $.ajax({
+                type: 'DELETE',
+                url: url,
+                contentType:'application/json;charset=utf-8',
+                dataType: 'json',
+                success: function(result) {
+                    // 成功跳转回首页.
+                    loadingMsger.hide();
+
+                    new $.zui.Messager('删除【'+ tagName + '】的 Release 版本成功，3 秒钟后将返回首页。', {
+                        type: 'success'
+                    }).show();
+                    setTimeout(function () {
+                        location.href = '${baseUrl}';
+                    }, 3000);
+                },
+                error: function() {
+                    new $.zui.Messager('删除【'+ tagName + '】的 Release 版本失败，请稍候再试！', {
+                        type: 'danger'
+                    }).show();
+                    releaseing = false;
+                    loadingMsger.hide();
+                    $('#delReleaseModal').modal('hide', 'fit');
+                }
+            });
+        });
+
     });
 </script>
 </body>
