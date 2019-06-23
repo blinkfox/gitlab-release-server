@@ -58,7 +58,6 @@ public class IndexController {
         log.info("开始查找一个版本，查询的版本信息为：{}", releaseInfo);
         String jsonStr = releaseService.getReleaseByTagName(releaseInfo);
         JSONObject jsonObject = JSON.parseObject(jsonStr);
-        log.info("jsonObj: {}", jsonObject);
 
         // 添加对应的返回填充的数据.
         modelView.addObject("gitlabUrl", gitlabUrl);

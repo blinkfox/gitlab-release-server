@@ -1,6 +1,8 @@
 package com.blinkfox.release.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.blinkfox.release.bean.link.BaseLinkInfo;
 import com.blinkfox.release.bean.link.LinkInfo;
 import com.blinkfox.release.bean.release.ReleaseInfo;
@@ -181,8 +183,19 @@ public class ReleaseController {
             @RequestParam("token") String token,
             @PathVariable("tagName") String tagName) {
         log.info("删除版本资源文件的信息 projectId: {}, tagName: {}.", projectId, tagName);
-        // 删除版本和 MinIO 中的文件.TODO 还需要删除 release 中的资源.
-        releaseService.deleteRelease(new ReleaseInfo(gitlabUrl, projectId, token, tagName));
+        // 先查询该版本是否存在，并得到对应的资源链接信息，然后从 MinIO 中删除这些资源.
+        ReleaseInfo releaseInfo = new ReleaseInfo(gitlabUrl, projectId, token, tagName);
+        String releaseJsonStr = releaseService.getReleaseByTagName(releaseInfo);
+        JSONArray jsonArray = JSON.parseObject(releaseJsonStr).getJSONObject("assets").getJSONArray("links");
+        if (jsonArray != null) {
+            for (int i = 0, len = jsonArray.size(); i < len; i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                minioService.deleteObjectQuieylyByUrl(jsonObject.getString("url"));
+            }
+        }
+
+        // 最后在 GitLab 中删除版本.
+        releaseService.deleteRelease(releaseInfo);
         return ResponseEntity.ok(new HashMap<>(4));
     }
 
