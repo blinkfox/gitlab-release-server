@@ -163,6 +163,7 @@
         // 发布信息的全局变量.
         var gitlabUrl = '${gitlabUrl}', token = '${token}', projectId = '${projectId}',
             name, tagName = '${tagName}', ref, description;
+        var removeFile;
 
         // 上传状态，发布状态.
         var uploading = false,
@@ -318,7 +319,7 @@
                     keyboard: false,
                     show: true
                 });
-                //doRemoveFile();
+                removeFile = doRemoveFile;
             },
             onFilesAdded: function(files) {
                 var $formTip = $('#form-tip');
@@ -401,12 +402,15 @@
                 contentType:'application/json;charset=utf-8',
                 dataType: 'json',
                 success: function(result) {
+                    // 成功就从页面删除文件资源.
+                    removeFile();
+
+                    $('#delAssetsModal').modal('hide', 'fit');
                     new $.zui.Messager('删除版本【'+ tagName + '】中的资源成功，可前往 GitLab 版本页查看。', {
                         type: 'success'
                     }).show();
                     releaseing = false;
                     loadingMsger.hide();
-                    $('#delAssetsModal').modal('hide', 'fit');
                 },
                 error: function() {
                     new $.zui.Messager('删除资源文件失败', {
