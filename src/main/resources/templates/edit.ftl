@@ -190,6 +190,9 @@
         // 资源链接的数组集合.
         var uploadLinks = [];
 
+        // 用于存放上传前后文件id的映射关系.
+        var fileIdMap = new Map();
+
         // 初始化上传的页面资源.
         var releaseFiles = [];
         var linkStr = '${links}';
@@ -327,45 +330,18 @@
 
         // 上传资源文件的相关代码.
         $uploader.uploader({
-            url: '${baseUrl}/upload/assets',
+            url: '${baseUrl}/releases/${projectId}/${tagName}/assets/file',
             max_retries: 0,
             chunk_size: '5mb',
             staticFiles: releaseFiles,
             deleteActionOnDone: function(file, doRemoveFile) {
-                $('#delFileId').val(file.id);
+                $('#delFileId').val(fileIdMap.get(file.id) ? fileIdMap.get(file.id) : file.id);
                 $('#delFileUrl').val(file.url);
                 $('#delAssetsModal').modal({
                     keyboard: false,
                     show: true
                 });
                 removeFile = doRemoveFile;
-            },
-            onFilesAdded: function(files) {
-                var $formTip = $('#form-tip');
-                // 判断 gitlabUrl 是否为空.
-                gitlabUrl = $('#gitlabUrl').val();
-                if (isBlank(gitlabUrl)) {
-                    $formTip.html('请填写有效的 GitLab 仓库地址，如：https://gitlab.com。').removeClass('hide');
-                    removeFiles(files);
-                    return false;
-                }
-
-                // 判断 projectId 是否为空.
-                projectId = $('#projectId').val();
-                if (isBlank(projectId)) {
-                    $formTip.html('请填写 GitLab 项目仓库的 ID，如：253。').removeClass('hide');
-                    removeFiles(files);
-                    return false;
-                }
-
-                tagName = $('#tagName').val();
-                if (isBlank(tagName)) {
-                    $formTip.html('请填写本次发布的标签名称，如：v1.2.0').removeClass('hide');
-                    removeFiles(files);
-                    return false;
-                }
-
-                $formTip.html('').addClass('hide');
             },
             onBeforeUpload: function (file) {
                 // 设置上传状态为true.
@@ -374,20 +350,17 @@
                 // 设置上传参数.
                 var multipart_params = $uploader.data('zui.uploader').plupload.settings.multipart_params;
                 multipart_params.gitlabUrl = $('#gitlabUrl').val();
-                multipart_params.projectId = $('#projectId').val();
-                multipart_params.tagName = $('#tagName').val();
+                multipart_params.token = $('#token').val();
             },
             onFileUploaded: function (file, responseObject) {
                 if (responseObject.status === 200) {
                     var result = JSON.parse(responseObject.response);
-                    uploadLinks.push({name: result.name, url: result.url});
+                    fileIdMap.set(file.id, result.id);
                 }
             },
             onUploadComplete: function (files) {
                 // 所有文件上传完毕，改变上传的状态.
                 uploading = false;
-                console.log(uploadLinks);
-                console.log('所有文件上传完毕!');
             },
             onError: function () {
                 $('#form-tip').html('有文件上传出错，请取消重新上传或联系管理员！').removeClass('hide');

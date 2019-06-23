@@ -74,12 +74,15 @@ public class LinkService {
      * 创建发布一个新的资源链接 link 信息.
      *
      * @param linkInfo 链接信息
+     * @return 资源链接信息
      */
-    public void createLink(LinkInfo linkInfo) {
+    public String createLink(LinkInfo linkInfo) {
         ResponseEntity<String> response = restTemplate.exchange(linkInfo.getLinkUrl(), HttpMethod.POST,
                 new HttpEntity<>(this.createLinkParamsMap(linkInfo), HttpKit.buildTokenHeaders(linkInfo.getToken())),
                 String.class);
-        log.info("【创建 link 成功】响应结果: \n{}", response.getBody());
+        String linkJsonStr = response.getBody();
+        log.info("【创建 link 成功】响应结果: \n{}", linkJsonStr);
+        return linkJsonStr;
     }
 
     /**

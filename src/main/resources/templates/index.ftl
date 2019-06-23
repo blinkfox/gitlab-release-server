@@ -403,8 +403,6 @@
             onUploadComplete: function (files) {
                 // 所有文件上传完毕，改变上传的状态.
                 uploading = false;
-                console.log(uploadLinks);
-                console.log('所有文件上传完毕!');
             },
             onError: function () {
                 $('#form-tip').html('有文件上传出错，请取消重新上传或联系管理员！').removeClass('hide');
