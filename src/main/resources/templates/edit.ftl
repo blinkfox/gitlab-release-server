@@ -347,7 +347,7 @@
                 // 设置上传状态为true.
                 uploading = true;
 
-                // 设置上传参数.
+                // 设置上传参数，包括文件名，后端获取的会有些问题.
                 var multipart_params = $uploader.data('zui.uploader').plupload.settings.multipart_params;
                 multipart_params.gitlabUrl = $('#gitlabUrl').val();
                 multipart_params.token = $('#token').val();
