@@ -4,6 +4,7 @@ import com.blinkfox.release.bean.release.ProjectInfo;
 import com.blinkfox.release.kits.StringKit;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -15,6 +16,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Getter
 @Accessors(chain = true)
+@NoArgsConstructor
 public class LinkInfo extends ProjectInfo {
 
     /**
@@ -31,6 +33,21 @@ public class LinkInfo extends ProjectInfo {
      * 基础链接信息，主要包括名称和URL.
      */
     private BaseLinkInfo baseLinkInfo;
+
+    /**
+     * 构造方法.
+     *
+     * @param gitlabUrl gitlabUrl
+     * @param projectId projectId
+     * @param token token
+     * @param tagName tagName
+     */
+    public LinkInfo(String gitlabUrl, String projectId, String token, String tagName) {
+        super.gitlabUrl = gitlabUrl;
+        super.projectId = projectId;
+        super.token = token;
+        this.tagName = tagName;
+    }
 
     /**
      * 获取拼接的资源链接 link 的 URL 请求字符串，不含链接ID（linkId）.

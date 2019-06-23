@@ -133,14 +133,36 @@
     </div>
 </footer>
 
+<!-- 删除资源文件的对话框HTML. -->
+<div id="delAssetsModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">关闭</span></button>
+                <h4 class="modal-title">标题</h4>
+            </div>
+            <div class="modal-body">
+                <!-- 删除资源文件id的隐藏域. -->
+                <input id="delFileId" type="hidden" />
+                <input id="delFileUrl" type="hidden" />
+                <p>确定要删除该发布资源吗？删除后将不可恢复！</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="delAssetBtn" type="button" class="btn btn-primary">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="${baseUrl}/lib/jquery/jquery-1.11.0.min.js"></script>
 <script src="${baseUrl}/lib/zui/js/zui.min.js"></script>
 <script src="${baseUrl}/lib/zui/lib/uploader/zui.uploader.min.js"></script>
 <script>
     $(function () {
         // 发布信息的全局变量.
-        var gitlabUrl, token, projectId,
-            name, tagName, ref, description;
+        var gitlabUrl = '${gitlabUrl}', token = '${token}', projectId = '${projectId}',
+            name, tagName = '${tagName}', ref, description;
 
         // 上传状态，发布状态.
         var uploading = false,
@@ -153,7 +175,8 @@
         var linkStr = '${links}';
         var links = linkStr !== '' ? JSON.parse(linkStr) : [];
         for (var i = 0, len = links.length; i < len; i++) {
-            releaseFiles.push({name: links[i].name, url: links[i].url});
+            var link = links[i];
+            releaseFiles.push({id: link.id, name: link.name, url: link.url});
         }
 
         // 上传文件对象.
@@ -289,7 +312,13 @@
             chunk_size: '5mb',
             staticFiles: releaseFiles,
             deleteActionOnDone: function(file, doRemoveFile) {
-                doRemoveFile();
+                $('#delFileId').val(file.id);
+                $('#delFileUrl').val(file.url);
+                $('#delAssetsModal').modal({
+                    keyboard: false,
+                    show: true
+                });
+                //doRemoveFile();
             },
             onFilesAdded: function(files) {
                 var $formTip = $('#form-tip');
@@ -345,7 +374,50 @@
             }
         });
 
+        // 隐藏文件大小属性.
         $('#assetsUploader .file-static .file-size').hide();
+
+        // 确认删除资源的操作.
+        $('#delAssetBtn').on('click', function () {
+            if (releaseing) {
+                return;
+            }
+            releaseing = true;
+
+            // 操作中提示.
+            var loadingMsger = new $.zui.Messager('版本资源文件正在删除中，请稍候...', {
+                icon: 'bell',
+                time: 0
+            });
+            loadingMsger.show();
+
+            // 发起删除资源文件的 ajax 请求.
+            var url = '${baseUrl}/releases/' + $('#projectId').val() + '/' + $('#tagName').val() + '/links/'
+                    + $('#delFileId').val() + '?gitlabUrl=' + $('#gitlabUrl').val() + '&token=' + $('#token').val()
+                    + '&linkUrl=' + $('#delFileUrl').val();
+            $.ajax({
+                type: 'DELETE',
+                url: url,
+                contentType:'application/json;charset=utf-8',
+                dataType: 'json',
+                success: function(result) {
+                    new $.zui.Messager('删除版本【'+ tagName + '】中的资源成功，可前往 GitLab 版本页查看。', {
+                        type: 'success'
+                    }).show();
+                    releaseing = false;
+                    loadingMsger.hide();
+                    $('#delAssetsModal').modal('hide', 'fit');
+                },
+                error: function() {
+                    new $.zui.Messager('删除资源文件失败', {
+                        type: 'danger'
+                    }).show();
+                    releaseing = false;
+                    loadingMsger.hide();
+                    $('#delAssetsModal').modal('hide', 'fit');
+                }
+            });
+        });
     });
 </script>
 </body>

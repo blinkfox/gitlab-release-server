@@ -7,6 +7,7 @@ import com.blinkfox.release.kits.StringKit;
 
 import io.minio.MinioClient;
 
+import java.io.InputStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -16,10 +17,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
-
 /**
- * Minio 相关操作的 Service 服务类.
+ * MinIO 相关操作的 Service 服务类.
  *
  * @author chenjiayin on 2019-06-16.
  */
@@ -76,7 +75,7 @@ public class MinioService {
     }
 
     /**
-     * 上传文件到 Minio 中，并返回该对象可访问的 URL 地址.
+     * 上传文件到 MinIO 中，并返回该对象可访问的 URL 地址.
      *
      * @param objectName 对象名.
      * @param in 输入流
@@ -85,10 +84,51 @@ public class MinioService {
     public String putObject(String objectName, InputStream in) {
         try {
             minioClient.putObject(bucket,  objectName, in, ContentType.APPLICATION_OCTET_STREAM.toString());
-            log.info("上传文件到 Minio 中成功.");
+            log.info("上传文件到 MinIO 中成功.");
             return StringUtils.join(endpoint, Const.SEP, bucket, Const.SEP, objectName);
         } catch (Exception e) {
             throw new RunException("上传文件过程中发生了错误!", e);
+        }
+    }
+
+    /**
+     * 从 MinIO 中删除文件对象.
+     *
+     * @param objectName 对象名.
+     */
+    public void deleteObject(String objectName) {
+        try {
+            minioClient.removeObject(bucket, objectName);
+            log.info("从 MinIO 中删除文件对象【{}】成功.", objectName);
+        } catch (Exception e) {
+            throw new RunException("上传文件过程中发生了错误!", e);
+        }
+    }
+
+    /**
+     * 根据文件对象的 URL 分析是否是该 MinIO 中的数据，如果是就静默的删除 MinIO 中的文件对象，不抛异常.
+     *
+     * @param url 对象名.
+     */
+    public void deleteObjectQuieylyByUrl(String url) {
+        if (StringUtils.isBlank(url)) {
+            log.warn("要删除的资源文件 URL 【{}】是空的，将直接跳过！", url);
+            return;
+        }
+
+        String endpointBucket = endpoint + Const.SEP + bucket + Const.SEP;
+        if (!url.contains(endpointBucket)) {
+            log.warn("要删除的资源文件 URL 【{}】不是本 MinIO 中的数据，将直接跳过!", url);
+            return;
+        }
+
+        // 从 url 中解析出对象名，并从 MinIO 中删除.
+        String objectName = StringUtils.substringAfter(url, endpointBucket);
+        try {
+            minioClient.removeObject(bucket, objectName);
+            log.info("从 MinIO 中删除文件对象【{}】成功.", objectName);
+        } catch (Exception e) {
+            log.error("从 MinIO 中删除文件对象【{}】失败", objectName, e);
         }
     }
 
