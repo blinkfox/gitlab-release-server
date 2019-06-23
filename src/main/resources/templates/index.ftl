@@ -393,6 +393,7 @@
                 multipart_params.gitlabUrl = $('#gitlabUrl').val();
                 multipart_params.projectId = $('#projectId').val();
                 multipart_params.tagName = $('#tagName').val();
+                multipart_params.fileName = file.name;
             },
             onFileUploaded: function (file, responseObject) {
                 if (responseObject.status === 200) {

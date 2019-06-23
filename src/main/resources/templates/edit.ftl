@@ -351,6 +351,7 @@
                 var multipart_params = $uploader.data('zui.uploader').plupload.settings.multipart_params;
                 multipart_params.gitlabUrl = $('#gitlabUrl').val();
                 multipart_params.token = $('#token').val();
+                multipart_params.fileName = file.name;
             },
             onFileUploaded: function (file, responseObject) {
                 if (responseObject.status === 200) {

@@ -67,20 +67,16 @@ public class ReleaseController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("gitlabUrl") String gitlabUrl,
             @RequestParam("projectId") String projectId,
-            @RequestParam("tagName") String tagName) throws IOException {
+            @RequestParam("tagName") String tagName,
+            @RequestParam("fileName") String fileName) throws IOException {
         log.info("gitlabUrl: {}, projectId: {}, tagName: {}.", gitlabUrl, projectId, tagName);
 
         // 上传对象到 MinIO 中，并返回 URL.
         String url = minioService.putObject(this.buildObjectName(this.getCodeByGitlabUrl(gitlabUrl),
-                projectId, tagName, file.getOriginalFilename()), file.getInputStream());
+                projectId, tagName, fileName), file.getInputStream());
 
         // 返回结果，上传控件必须要求必须返回 status 为 200 才算成功.
-        Map<String, Object> map = new HashMap<>(8);
-        map.put("status", HttpStatus.OK.value());
-        map.put("id", StringKit.getUuid());
-        map.put("name", file.getOriginalFilename());
-        map.put("url", url);
-        return ResponseEntity.ok(map);
+        return this.getMapResponseEntity(fileName, url, StringKit.getUuid());
     }
 
     /**
@@ -213,24 +209,37 @@ public class ReleaseController {
             @RequestParam("gitlabUrl") String gitlabUrl,
             @PathVariable("projectId") String projectId,
             @RequestParam("token") String token,
-            @PathVariable("tagName") String tagName) throws IOException {
+            @PathVariable("tagName") String tagName,
+            @RequestParam("fileName") String fileName) throws IOException {
         log.info("编辑版本上传资源文件的信息，gitlabUrl: {}, projectId: {}, tagName: {}.", gitlabUrl, projectId, tagName);
 
         // 上传对象到 MinIO 中，并返回 URL.
-        String name = file.getOriginalFilename();
         String url = minioService.putObject(this.buildObjectName(this.getCodeByGitlabUrl(gitlabUrl),
-                projectId, tagName, name), file.getInputStream());
+                projectId, tagName, fileName), file.getInputStream());
 
         // 向 gitlab 中添加资源链接.
         String linkJsonStr = linkService.createLink(new LinkInfo(gitlabUrl, projectId, token, tagName)
-                .setBaseLinkInfo(new BaseLinkInfo(name, url)));
+                .setBaseLinkInfo(new BaseLinkInfo(fileName, url)));
 
         // 返回结果，上传控件必须要求必须返回 status 为 200 才算成功.
         // 添加资源连接成功之后，需要获取到资源连接ID，返回给前台.
+        return this.getMapResponseEntity(fileName, url, JSON.parseObject(linkJsonStr).getString("id"));
+    }
+
+    /**
+     * 返回上传时的前台参数.
+     *
+     * @param fileName fileName
+     * @param url url
+     * @param id id
+     * @return Map
+     */
+    private ResponseEntity<Map<String, Object>> getMapResponseEntity(String fileName,
+            String url, String id) {
         Map<String, Object> map = new HashMap<>(8);
         map.put("status", HttpStatus.OK.value());
-        map.put("id", JSON.parseObject(linkJsonStr).getString("id"));
-        map.put("name", name);
+        map.put("id", id);
+        map.put("name", fileName);
         map.put("url", url);
         return ResponseEntity.ok(map);
     }
