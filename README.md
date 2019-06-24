@@ -1,3 +1,3 @@
 # gitlab-release-server
 
-> 这是一个用于创建发布 GitLab Releases 版本的服务。
+> 这是一个基于 GitLab Release API 来发布和管理 GitLab Releases 版本的服务。
