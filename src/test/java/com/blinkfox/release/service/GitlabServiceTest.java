@@ -13,7 +13,7 @@ class GitlabServiceTest {
     /** GitLab 的项目 ID. */
     protected String projectId = "5725437";
 
-    /** 一个测试的 token. */
-    protected String token = "DETUw9jfL9E4mtUg8uBN";
+    /** 一个测试的 token，测试时需要改成自己的. */
+    protected String token = "DETUw9jfL9E4mtUg8287";
 
 }
