@@ -129,7 +129,8 @@
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-8">
             <button id="releaseBtn" class="btn btn-primary"><i class="icon icon-hand-up"></i> 发布新版本</button>
-            <button id="queryEditBtn" class="btn btn-info"><i class="icon icon-edit"></i> 前往编辑某个版本</button>
+            <button id="queryEditBtn" class="btn btn-info" data-toggle="tooltip" data-placement="top"
+                    title="请正确填写 GitLab地址、项目ID、访问令牌、标签名称四个值，才能前往编辑对应的 Release 版本。"><i class="icon icon-edit"></i> 前往编辑某个版本</button>
         </div>
     </div>
 </div>
@@ -418,6 +419,9 @@
                 $('#form-tip').html('有文件上传出错，请取消重新上传或联系管理员！').removeClass('hide');
             }
         });
+
+        // 提示信息初始化.
+        $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
 </body>
