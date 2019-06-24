@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GitLab Release 版本服务</title>
-    <link rel="stylesheet" href="lib/zui/css/zui.min.css">
-    <link rel="stylesheet" href="lib/zui/lib/uploader/zui.uploader.min.css" />
-    <link rel="stylesheet" href="lib/zui/css/doc.min.css">
-    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="${baseUrl}/lib/zui/css/zui.min.css">
+    <link rel="stylesheet" href="${baseUrl}/lib/zui/lib/uploader/zui.uploader.min.css" />
+    <link rel="stylesheet" href="${baseUrl}/lib/zui/css/doc.min.css">
+    <link rel="stylesheet" href="${baseUrl}/css/index.css" />
 </head>
 
 <body>
@@ -39,7 +39,7 @@
     <div id="headContainer">
         <div class="container">
             <div id="heading">
-                <h1>Release 服务</h1>
+                <h1>Release 版本服务</h1>
                 <p>这是一个用于发布和编辑 GitLab Releases 版本的服务，同时也支持上传和管理各个版本的资源文件。</p>
             </div>
         </div>
@@ -141,9 +141,9 @@
     </div>
 </footer>
 
-<script src="lib/jquery/jquery-1.11.0.min.js"></script>
-<script src="lib/zui/js/zui.min.js"></script>
-<script src="lib/zui/lib/uploader/zui.uploader.min.js"></script>
+<script src="${baseUrl}/lib/jquery/jquery-1.11.0.min.js"></script>
+<script src="${baseUrl}/lib/zui/js/zui.min.js"></script>
+<script src="${baseUrl}/lib/zui/lib/uploader/zui.uploader.min.js"></script>
 <script>
     $(function () {
         // 发布信息的全局变量.
@@ -272,6 +272,14 @@
         function clearForm() {
             clearFormData('release-form');
             uploadLinks = [];
+
+            // 清空上传的队列文件.
+            var uploader = $uploader.data('zui.uploader');
+            var files = uploader.getFiles();
+            while (files && files.length > 0) {
+                uploader.removeFile(files[0]);
+                files = uploader.getFiles();
+            }
         }
 
         // 发布版本的按钮事件.
@@ -308,26 +316,24 @@
             };
             $.ajax({
                 type: 'POST',
-                url: '/releases/',
+                url: '${baseUrl}/releases/',
                 contentType:'application/json;charset=utf-8',
                 dataType: 'json',
                 data: JSON.stringify(params),
                 success: function(result) {
-                    var successMsger = new $.zui.Messager('恭喜你，新版本【'+ tagName + '】已发布成功，请前往 GitLab 版本页查看新版本!', {
-                        type: 'success'
-                    });
-                    successMsger.show();
-                    clearForm();
-                    isReleaseing = false;
                     loadingMsger.hide();
+                    isReleaseing = false;
+                    new $.zui.Messager('恭喜你，新版本【'+ tagName + '】已发布成功，请前往 GitLab 版本页查看新版本!', {
+                        type: 'success'
+                    }).show();
+                    clearForm();
                 },
                 error: function() {
-                    var errorMsger = new $.zui.Messager('发布失败！请检查你填写的版本发布的信息是否正确！', {
-                        type: 'danger'
-                    });
-                    errorMsger.show();
-                    isReleaseing = false;
                     loadingMsger.hide();
+                    isReleaseing = false;
+                    new $.zui.Messager('发布失败！请检查你填写的版本发布的信息是否正确！', {
+                        type: 'danger'
+                    }).show();
                 }
             });
         });
@@ -337,7 +343,7 @@
             if (!validQueryEditForm()) {
                 return;
             }
-            location.href = '/releases/' + projectId + '/' + tagName + '?gitlabUrl=' + gitlabUrl + '&token=' + token;
+            window.open('/releases/' + projectId + '/' + tagName + '?gitlabUrl=' + gitlabUrl + '&token=' + token, '_blank');
         });
 
         /**
@@ -354,9 +360,9 @@
 
         // 上传资源文件的相关代码.
         $uploader.uploader({
-            url: '/releases/assets/file',
+            url: '${baseUrl}/releases/assets/file',
             max_retries: 0,
-            chunk_size: '5mb',
+            chunk_size: 0,
             onFilesAdded: function(files) {
                 var $formTip = $('#form-tip');
                 // 判断 gitlabUrl 是否为空.
@@ -389,17 +395,20 @@
                 uploading = true;
 
                 // 设置上传参数，包括文件名，后端获取的会有些问题
-                var multipart_params = $uploader.data('zui.uploader').plupload.settings.multipart_params;
+                var uploader = $uploader.data('zui.uploader');
+                var multipart_params = uploader.plupload.settings.multipart_params;
                 multipart_params.gitlabUrl = $('#gitlabUrl').val();
                 multipart_params.projectId = $('#projectId').val();
                 multipart_params.tagName = $('#tagName').val();
                 multipart_params.fileName = file.name;
+                uploader.showMessage('正在上传资源文件并生成资源链接信息，请稍候...', 'info');
             },
             onFileUploaded: function (file, responseObject) {
                 if (responseObject.status === 200) {
                     var result = JSON.parse(responseObject.response);
                     uploadLinks.push({name: result.name, url: result.url});
                 }
+                $uploader.data('zui.uploader').hideMessage();
             },
             onUploadComplete: function (files) {
                 // 所有文件上传完毕，改变上传的状态.

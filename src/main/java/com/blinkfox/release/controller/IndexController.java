@@ -56,7 +56,16 @@ public class IndexController {
             @PathVariable("tagName") String tagName) {
         ReleaseInfo releaseInfo = new ReleaseInfo(gitlabUrl, projectId, token, tagName);
         log.info("开始查找一个版本，查询的版本信息为：{}", releaseInfo);
-        String jsonStr = releaseService.getReleaseByTagName(releaseInfo);
+
+        String jsonStr = null;
+        try {
+            jsonStr = releaseService.getReleaseByTagName(releaseInfo);
+        } catch (Exception e) {
+            log.error("没有找到对应的的 Release 版本！", e);
+            modelView.setViewName("404");
+            return modelView;
+        }
+
         JSONObject jsonObject = JSON.parseObject(jsonStr);
 
         // 添加对应的返回填充的数据.

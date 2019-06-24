@@ -39,7 +39,7 @@
     <div id="headContainer">
         <div class="container">
             <div id="heading">
-                <h1>Release 服务</h1>
+                <h1>Release 版本服务</h1>
                 <p>这是一个用于发布和编辑 GitLab Releases 版本的服务，同时也支持上传和管理各个版本的资源文件。</p>
             </div>
         </div>
@@ -332,7 +332,7 @@
         $uploader.uploader({
             url: '${baseUrl}/releases/${projectId}/${tagName}/assets/file',
             max_retries: 0,
-            chunk_size: '5mb',
+            chunk_size: 0,
             staticFiles: releaseFiles,
             deleteActionOnDone: function(file, doRemoveFile) {
                 $('#delFileId').val(fileIdMap.get(file.id) ? fileIdMap.get(file.id) : file.id);
@@ -348,16 +348,19 @@
                 uploading = true;
 
                 // 设置上传参数，包括文件名，后端获取的会有些问题.
-                var multipart_params = $uploader.data('zui.uploader').plupload.settings.multipart_params;
+                var uploader = $uploader.data('zui.uploader');
+                var multipart_params = uploader.plupload.settings.multipart_params;
                 multipart_params.gitlabUrl = $('#gitlabUrl').val();
                 multipart_params.token = $('#token').val();
                 multipart_params.fileName = file.name;
+                uploader.showMessage('正在上传资源文件并将资源链接信息记录到 GitLab 中，请稍候...', 'info');
             },
             onFileUploaded: function (file, responseObject) {
                 if (responseObject.status === 200) {
                     var result = JSON.parse(responseObject.response);
                     fileIdMap.set(file.id, result.id);
                 }
+                $uploader.data('zui.uploader').hideMessage();
             },
             onUploadComplete: function (files) {
                 // 所有文件上传完毕，改变上传的状态.
@@ -448,6 +451,7 @@
                 success: function(result) {
                     // 成功跳转回首页.
                     loadingMsger.hide();
+                    $('#delReleaseModal').modal('hide', 'fit');
 
                     new $.zui.Messager('删除【'+ tagName + '】的 Release 版本成功，3 秒钟后将返回首页。', {
                         type: 'success'
