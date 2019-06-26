@@ -15,7 +15,7 @@
 
 进入本服务主页之后，将看到如下页面：
 
-![release-index.png](http://static.blinkfox.com/release-index.png)
+![release-index.png](http://static.blinkfox.com/20190626-release-index.png)
 
 如果你想要发布一个版本，只需要填写页面表单即可，发布版本的表单信息项介绍如下：
 
@@ -37,13 +37,13 @@
 
 我在 GitLab 上建立了一个的示例项目[ssdemo](https://gitlab.com/blinkfox/ssdemo)，来演示 GitLab 这个发布版本的功能，发布成功之后就可以在项目[版本页](https://gitlab.com/blinkfox/ssdemo/-/releases)中看到版本了，发布版本的效果图如下：
 
-![release-demo.png](http://static.blinkfox.com/release-demo.png)
+![release-demo.png](http://static.blinkfox.com/20190626-release-demo.png)
 
 ### 4. 编辑或删除某个版本
 
 本服务支持再编辑或删除某个存在的版本信息，只需要在首页的表单中填写**GitLab 地址**、**项目ID**、**访问令牌**和版本**版本标签**四个字段，然后点击“前往编辑某个版本”按钮，页面就会跳转并加载该版本的信息，如下图所示：
 
-![release-edit.png](http://static.blinkfox.com/release-edit.png)
+![release-edit.png](http://static.blinkfox.com/20190626-release-edit.png)
 
 编辑版本只可以编辑如下三项信息：
 
