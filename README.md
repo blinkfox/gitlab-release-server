@@ -1,5 +1,7 @@
 # GitLab 版本管理服务 (gitlab-release-server)
 
+[![HitCount](http://hits.dwyl.io/blinkfox/gitlab-release-server.svg)](https://github.com/blinkfox/gitlab-release-server)
+
 > 这是一个基于 GitLab Release API 来发布和管理 GitLab Releases 版本的服务。
 
 ## 一、特性
