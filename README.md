@@ -1,6 +1,6 @@
 # GitLab 版本管理服务 (gitlab-release-server)
 
-[![HitCount](http://hits.dwyl.io/blinkfox/gitlab-release-server.svg)](https://github.com/blinkfox/gitlab-release-server) [Build Status](https://secure.travis-ci.org/blinkfox/gitlab-release-server.svg)](https://travis-ci.org/blinkfox/gitlab-release-server) ![Java Version](https://img.shields.io/badge/Java-%3E%3D%208-blue.svg)
+[![HitCount](http://hits.dwyl.io/blinkfox/gitlab-release-server.svg)](https://github.com/blinkfox/gitlab-release-server) ![Java Version](https://img.shields.io/badge/Java-%3E%3D%208-blue.svg)
 
 > 这是一个基于 GitLab Release API 来发布和管理 GitLab Releases 版本的服务。
 
